@@ -73,6 +73,12 @@ enqueue_key(u16 keycode)
     return 1;
 }
 
+u8
+kbc_enqueue_key(u8 scan_code, u8 ascii_code)
+{
+	return enqueue_key(scan_code, ascii_code);
+}
+
 static void
 dequeue_key(struct bregs *regs, int incr, int extended)
 {

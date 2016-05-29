@@ -184,6 +184,7 @@ int jpeg_show(struct jpeg_decdata *jpeg, unsigned char *pic, int width
 void kbd_init(void);
 void handle_15c2(struct bregs *regs);
 void process_key(u8 key);
+u8 kbc_enqueue_key(u8 scan_code, u8 ascii_code);
 
 // misc.c
 extern int HaveRunPost;
@@ -230,6 +231,9 @@ void code_mutable_preinit(void);
 // serial.c
 void serial_setup(void);
 void lpt_setup(void);
+
+// serialconsole.c
+void uart_keyboard_handler(void);
 
 // vgahooks.c
 void handle_155f(struct bregs *regs);

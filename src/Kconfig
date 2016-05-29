@@ -27,6 +27,11 @@ choice
 
 endchoice
 
+	config	SEABIOS_SERIAL_CONSOLE
+		bool "Enable serial console for headless systems"
+		default	y
+
+
     config QEMU_HARDWARE
         bool "Support hardware found on emulators (QEMU/Xen/KVM/Bochs)" if !QEMU
         default n
@@ -521,7 +526,7 @@ menu "Debugging"
             Set to zero to disable debugging.
 
     config DEBUG_SERIAL
-        depends on DEBUG_LEVEL != 0
+        depends on SEABIOS_SERIAL_CONSOLE || DEBUG_LEVEL != 0
         bool "Serial port debugging"
         default n
         help

@@ -1,6 +1,7 @@
 // PCI SD Host Controller Interface
 //
 // Copyright (C) 2014  Kevin O'Connor <kevin@koconnor.net>
+// Copyright (C) 2016  Eltan B.V.
 //
 // This file may be distributed under the terms of the GNU LGPLv3 license.
 
@@ -94,6 +95,10 @@ struct sdhci_s {
 #define ST_AUTO_CMD12 (1<<2)
 #define ST_READ       (1<<4)
 #define ST_MULTIPLE   (1<<5)
+
+// SDHCI SDHC_CTRL1 Flags
+#define CTRL1_HIGH_SPEED_EN (1<<2)
+#define CTRL1_DAT_TX_WIDTH (1<<1)	// 4 BIT IF SET 0 BIT IF CLEAR (DEFAULT)
 
 // SDHCI capabilities flags
 #define SD_CAPLO_V33             (1<<24)
@@ -271,8 +276,10 @@ sdcard_readwrite(struct disk_op_s *op, int iswrite)
     if (op->count > 1)
         cmd = iswrite ? SC_WRITE_MULTIPLE : SC_READ_MULTIPLE;
     int ret = sdcard_pio_transfer(drive, cmd, op->lba, op->buf_fl, op->count);
-    if (ret)
+    if (ret) {
+        dprintf(3, "sdcard_readwrite block %llu count %d returned DISK_RET_EBADTRACK\n", op->lba, op->count);
         return DISK_RET_EBADTRACK;
+    }
     return DISK_RET_SUCCESS;
 }
 
@@ -388,6 +395,7 @@ static int
 sdcard_card_setup(struct sddrive_s *drive, int volt, int prio)
 {
     struct sdhci_s *regs = drive->regs;
+
     // Set controller to initialization clock rate
     int ret = sdcard_set_frequency(regs, 400);
     if (ret)
@@ -458,9 +466,17 @@ sdcard_card_setup(struct sddrive_s *drive, int volt, int prio)
     if (ret)
         return ret;
     // Set controller to data transfer clock rate
-    ret = sdcard_set_frequency(regs, 25000);
+//    ret = sdcard_set_frequency(regs, 25000);
+  //  ret = sdcard_set_frequency(regs, 50000);
+    ret = sdcard_set_frequency(regs, 200000);
     if (ret)
         return ret;
+
+    u32 ctrl1 = readl(&regs->host_control);
+    ctrl1 |= CTRL1_HIGH_SPEED_EN;
+    writel(&regs->host_control, ctrl1);
+    dprintf(3, "host_control contains 0x%08x\n", ctrl1);
+
     // Register drive
     ret = sdcard_get_capacity(drive, csd);
     if (ret)
