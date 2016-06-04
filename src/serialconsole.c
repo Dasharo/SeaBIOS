@@ -50,7 +50,7 @@ uart_keyboard_handler(void)
             return;
         }
         scan_code = GET_GLOBAL(UartToScanCode[ascii_code]);
-        kbc_enqueue_key(scan_code, ascii_code);
+        enqueue_key((u16) scan_code << 8 | ascii_code);
     }
     else if (rx_bytes == 2) { // assume it's actually 2 single-byte keystrokes
         ascii_code = rx_buf[0];
@@ -59,7 +59,7 @@ uart_keyboard_handler(void)
             return;
         }
         scan_code = GET_GLOBAL(UartToScanCode[ascii_code]);
-        kbc_enqueue_key(scan_code, ascii_code);
+        enqueue_key((u16) scan_code << 8 | ascii_code);
 
         ascii_code = rx_buf[1];
         if (ascii_code >= ARRAY_SIZE(UartToScanCode)) {
@@ -67,7 +67,7 @@ uart_keyboard_handler(void)
             return;
         }
         scan_code = GET_GLOBAL(UartToScanCode[ascii_code]);
-        kbc_enqueue_key(scan_code, ascii_code);
+        enqueue_key((u16) scan_code << 8 | ascii_code);
     }
     else if (rx_bytes == 3) {
         if ((rx_buf[0] == 0x1b) && (rx_buf[1] == 0x4f)) { // F1-F12
@@ -96,13 +96,13 @@ uart_keyboard_handler(void)
             dprintf(3, "uart_check_keystrokes: error in 3 byte key sequence\n");
             return;
         }
-        kbc_enqueue_key(scan_code, ascii_code);
+        enqueue_key((u16) scan_code << 8 | ascii_code);
     }
     else if (rx_bytes == 4) {
         if ((rx_buf[0] == 0x1b) && (rx_buf[1] == 0x5b) && (rx_buf[2] == 0x33) && (rx_buf[3] == 0x7e)) { // DEL
             ascii_code = 0xe0;
             scan_code = 0x53;
-            kbc_enqueue_key(scan_code, ascii_code);
+            enqueue_key((u16) scan_code << 8 | ascii_code);
         }
         else {
             dprintf(3, "uart_check_keystrokes: unhandled 4 byte keystroke ");
@@ -145,7 +145,7 @@ uart_keyboard_handler(void)
             dprintf(3, "%x %x %x %x %x\n",rx_buf[0],rx_buf[1],rx_buf[2],rx_buf[3],rx_buf[4]);
             return;
         }
-        kbc_enqueue_key(scan_code, ascii_code);
+        enqueue_key((u16) scan_code << 8 | ascii_code);
     }
     else {
         dprintf(3, "uart_check_keystrokes: unhandled rx_bytes = %x\n",rx_bytes);
