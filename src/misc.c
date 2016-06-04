@@ -69,7 +69,6 @@ handle_10(struct bregs *regs)
 
 		    while ((inb(CONFIG_DEBUG_SERIAL_PORT + SEROFF_LSR) & UART_THRE) != UART_THRE)
 		        if (!timeout--) return;
-		    outb(regs->al, CONFIG_DEBUG_SERIAL_PORT + SEROFF_DATA);
 		}
         break;
     default:
