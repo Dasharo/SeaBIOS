@@ -350,8 +350,6 @@ xhci_hub_reset(struct usbhub_s *hub, u32 port)
         if (wait_bit(&xhci->pr[port].portsc, XHCI_PORTSC_PED, XHCI_PORTSC_PED, 100) != 0)
             return -1;
         msleep(20); // Patch to make XHCI work on AMD Mullins
-        portsc = readl(&xhci->pr[port].portsc);
-        rc = speed_from_xhci[xhci_get_field(portsc, XHCI_PORTSC_SPEED)];
         break;
     default:
         return -1;
