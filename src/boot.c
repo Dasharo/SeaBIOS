@@ -103,6 +103,20 @@ find_prio(const char *glob)
     return -1;
 }
 
+// search for 'ipxe enable' bit value
+int find_pxen(void)
+{
+    int i = 0;
+    for (i=0; i < BootorderCount; i++)
+    {
+        if (glob_prefix("pxen0", Bootorder[i]))
+            return 0;
+        if (glob_prefix("pxen1", Bootorder[i]))
+            return 1;
+    }
+    return -1;
+}
+
 #define FW_PCI_DOMAIN "/pci@i0cf8"
 
 static char *
