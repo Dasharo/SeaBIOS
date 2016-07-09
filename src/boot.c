@@ -117,6 +117,19 @@ int find_pxen(void)
     return -1;
 }
 
+// search for 'boot from usb' bit value
+// if it doesn't exist - set to enabled
+static int find_usben(void)
+{
+     int i;
+     for (i=0; i < BootorderCount; i++)
+     {
+         if (glob_prefix("usben0", Bootorder[i]))
+             return 0;
+     }
+     return 1;
+}
+
 #define FW_PCI_DOMAIN "/pci@i0cf8"
 
 static char *
@@ -395,8 +408,10 @@ boot_add_floppy(struct drive_s *drive_g, const char *desc, int prio)
 void
 boot_add_hd(struct drive_s *drive_g, const char *desc, int prio)
 {
-    bootentry_add(IPL_TYPE_HARDDISK, defPrio(prio, DefaultHDPrio)
-                  , (u32)drive_g, desc);
+    int usben = find_usben();
+    if ((glob_prefix("USB*", desc) == NULL) || usben == 1)
+        bootentry_add(IPL_TYPE_HARDDISK, defPrio(prio, DefaultHDPrio)
+                        , (u32)drive_g, desc);
 }
 
 void
