@@ -494,7 +494,7 @@ interactive_bootmenu(void)
 
     char *bootmsg = romfile_loadfile("etc/boot-menu-message", NULL);
     int menukey = romfile_loadint("etc/boot-menu-key", 1);
-    printf("%s", bootmsg && pxen == 1 ? bootmsg : "\nPress F10 key now for boot menu\n\n");
+    dprintf(0, "%s", bootmsg && pxen == 1 ? bootmsg : "\nPress F10 key now for boot menu\n\n");
     free(bootmsg);
 
     u32 menutime = romfile_loadint("etc/boot-menu-wait", DEFAULT_BOOTMENU_WAIT);
@@ -526,14 +526,14 @@ interactive_bootmenu(void)
     }
     // Show menu items if menu-key is pressed
     else {
-        printf("Select boot device:\n\n");
+        dprintf(0, "Select boot device:\n\n");
         wait_threads();
 
         // Show menu items
         hlist_for_each_entry(pos, &BootList, node) {
             char desc[60];
             maxmenu++;
-            printf("%d. %s\n", maxmenu
+            dprintf(0, "%d. %s\n", maxmenu
                    , strtcpy(desc, pos->description, ARRAY_SIZE(desc)));
         }
         if (tpm_can_show_menu()) {
