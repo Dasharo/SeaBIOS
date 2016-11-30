@@ -373,7 +373,7 @@ xhci_hub_reset(struct usbhub_s *hub, u32 port)
     }
 
     int rc = speed_from_xhci[xhci_get_field(portsc, XHCI_PORTSC_SPEED)];
-    xhci_print_port_state(1, "XHCI", port, portsc);
+    xhci_print_port_state(2, "XHCI", port, portsc);
     return rc;
 }
 
