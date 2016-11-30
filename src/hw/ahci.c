@@ -549,22 +549,22 @@ static int ahci_port_setup(struct ahci_port_s *port)
         // Select used mode. UDMA first, then Multi-DMA followed by
         // advanced PIO modes 3 or 4. If non, set default PIO.
         if (udma_mode >= 0) {
-            dprintf(1, "AHCI/%d: Set transfer mode to UDMA-%d\n",
+            dprintf(2, "AHCI/%d: Set transfer mode to UDMA-%d\n",
                     port->pnr, udma_mode);
             port->cmd->fis.sector_count = ATA_TRANSFER_MODE_ULTRA_DMA
                                           | udma_mode;
         } else if (multi_dma >= 0) {
-            dprintf(1, "AHCI/%d: Set transfer mode to Multi-DMA-%d\n",
+            dprintf(2, "AHCI/%d: Set transfer mode to Multi-DMA-%d\n",
                     port->pnr, multi_dma);
             port->cmd->fis.sector_count = ATA_TRANSFER_MODE_MULTIWORD_DMA
                                           | multi_dma;
         } else if (pio_mode >= 3) {
-            dprintf(1, "AHCI/%d: Set transfer mode to PIO-%d\n",
+            dprintf(2, "AHCI/%d: Set transfer mode to PIO-%d\n",
                     port->pnr, pio_mode);
             port->cmd->fis.sector_count = ATA_TRANSFER_MODE_PIO_FLOW_CTRL
                                           | pio_mode;
         } else {
-            dprintf(1, "AHCI/%d: Set transfer mode to default PIO\n",
+            dprintf(2, "AHCI/%d: Set transfer mode to default PIO\n",
                     port->pnr);
             port->cmd->fis.sector_count = ATA_TRANSFER_MODE_DEFAULT_PIO;
         }

@@ -488,7 +488,7 @@ sdcard_card_setup(struct sddrive_s *drive, int volt, int prio)
     char *desc = znprintf(MAXDESCSIZE, "%s %s %dMiB"
                           , drive->card_type & SF_MMC ? "MMC drive" : "SD card"
                           , pnm, (u32)(drive->drive.sectors >> 11));
-    dprintf(1, "Found sdcard at %p: %s\n", regs, desc);
+    dprintf(2, "Found sdcard at %p: %s\n", regs, desc);
     boot_add_hd(&drive->drive, desc, prio);
     return 0;
 }
@@ -555,7 +555,7 @@ sdcard_romfile_setup(void *data)
     struct romfile_s *file = data;
     int prio = bootprio_find_named_rom(file->name, 0);
     u32 addr = romfile_loadint(file->name, 0);
-    dprintf(1, "Starting sdcard controller check at addr %x\n", addr);
+    dprintf(2, "Starting sdcard controller check at addr %x\n", addr);
     sdcard_controller_setup((void*)addr, prio);
 }
 

@@ -34,7 +34,7 @@ static void
 __callrom(struct rom_header *rom, u16 offset, u16 bdf)
 {
     u16 seg = FLATPTR_TO_SEG(rom);
-    dprintf(1, "Running option rom at %04x:%04x\n", seg, offset);
+    dprintf(2, "Running option rom at %04x:%04x\n", seg, offset);
 
     struct bregs br;
     memset(&br, 0, sizeof(br));
@@ -77,7 +77,7 @@ is_valid_rom(struct rom_header *rom)
     u32 len = rom->size * 512;
     u8 sum = checksum(rom, len);
     if (sum != 0) {
-        dprintf(1, "Found option rom with bad checksum: loc=%p len=%d sum=%x\n"
+        dprintf(2, "Found option rom with bad checksum: loc=%p len=%d sum=%x\n"
                 , rom, len, sum);
         if (EnforceChecksum)
             return 0;
@@ -345,7 +345,7 @@ optionrom_setup(void)
     if (! CONFIG_OPTIONROMS)
         return;
 
-    dprintf(1, "Scan for option roms\n");
+    dprintf(2, "Scan for option roms\n");
     u64 sources[(BUILD_BIOS_ADDR - BUILD_ROM_START) / OPTION_ROM_ALIGN];
     memset(sources, 0, sizeof(sources));
     u32 post_vga = rom_get_last();
@@ -410,7 +410,7 @@ vgarom_setup(void)
     if (! CONFIG_OPTIONROMS)
         return;
 
-    dprintf(1, "Scan for VGA option rom\n");
+    dprintf(2, "Scan for VGA option rom\n");
 
     // Load some config settings that impact VGA.
     EnforceChecksum = romfile_loadint("etc/optionroms-checksum", 1);

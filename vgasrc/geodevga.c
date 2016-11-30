@@ -231,14 +231,14 @@ static void geodevga_set_output_mode(void)
 
         if (CONFIG_VGA_OUTPUT_CRT_PANEL) {
             msr |= VP_MSR_CONFIG_FPC;  // simultaneous Flat Panel and CRT
-            dprintf(1, "output: simultaneous Flat Panel and CRT\n");
+            dprintf(2, "output: simultaneous Flat Panel and CRT\n");
         } else {
             msr &= ~VP_MSR_CONFIG_FPC; // no simultaneous Flat Panel and CRT
-            dprintf(1, "ouput: flat panel\n");
+            dprintf(2, "ouput: flat panel\n");
         }
     } else {
         msr |= VP_MSR_CONFIG_FMT_CRT;  // CRT only
-       dprintf(1, "output: CRT\n");
+       dprintf(2, "output: CRT\n");
     }
     geode_msr_mask(msr_addr, ~msr, msr);
 }
@@ -281,22 +281,22 @@ static void vp_setup(void)
     */
 
     u32 reg = geode_vp_read(VP_MISC);
-    dprintf(1,"VP_SETUP VP_MISC=0x%08x\n",reg);
+    dprintf(2,"VP_SETUP VP_MISC=0x%08x\n",reg);
     geode_vp_write(VP_MISC, VP_DCFG_BYP_BOTH);
     reg = geode_vp_read(VP_MISC);
-    dprintf(1,"VP_SETUP VP_MISC=0x%08x\n",reg);
+    dprintf(2,"VP_SETUP VP_MISC=0x%08x\n",reg);
 
     reg = geode_vp_read(VP_DCFG);
-    dprintf(1,"VP_SETUP VP_DCFG=0x%08x\n",reg);
+    dprintf(2,"VP_SETUP VP_DCFG=0x%08x\n",reg);
     geode_vp_mask(VP_DCFG, 0, VP_DCFG_CRT_EN|VP_DCFG_HSYNC_EN|VP_DCFG_VSYNC_EN|VP_DCFG_DAC_BL_EN|VP_DCFG_CRT_SKEW);
     reg = geode_vp_read(VP_DCFG);
-    dprintf(1,"VP_SETUP VP_DCFG=0x%08x\n",reg);
+    dprintf(2,"VP_SETUP VP_DCFG=0x%08x\n",reg);
 
     /* setup flat panel */
     if (CONFIG_VGA_OUTPUT_PANEL || CONFIG_VGA_OUTPUT_CRT_PANEL) {
         u64 msr;
 
-        dprintf(1, "Setting up flat panel\n");
+        dprintf(2, "Setting up flat panel\n");
         /* write timing register */
         geode_fp_write(FP_PT1, 0x0);
         geode_fp_write(FP_PT2, FP_PT2_SCRC);
@@ -376,10 +376,10 @@ int geodevga_setup(void)
     if (ret)
         return ret;
 
-    dprintf(1,"GEODEVGA_SETUP\n");
+    dprintf(2,"GEODEVGA_SETUP\n");
 
     if ((ret=legacyio_check())) {
-        dprintf(1,"GEODEVGA_SETUP legacyio_check=0x%x\n",ret);
+        dprintf(2,"GEODEVGA_SETUP legacyio_check=0x%x\n",ret);
     }
 
     // Updated timings from geode datasheets, table 6-53 in particular
@@ -405,9 +405,9 @@ int geodevga_setup(void)
     SET_VGA(GeodeDC, pci_config_readl(GET_GLOBAL(VgaBDF), PCI_BASE_ADDRESS_2));
     SET_VGA(GeodeVP, pci_config_readl(GET_GLOBAL(VgaBDF), PCI_BASE_ADDRESS_3));
 
-    dprintf(1, "fb addr: 0x%08x\n", GET_GLOBAL(GeodeFB));
-    dprintf(1, "dc addr: 0x%08x\n", GET_GLOBAL(GeodeDC));
-    dprintf(1, "vp addr: 0x%08x\n", GET_GLOBAL(GeodeVP));
+    dprintf(2, "fb addr: 0x%08x\n", GET_GLOBAL(GeodeFB));
+    dprintf(2, "dc addr: 0x%08x\n", GET_GLOBAL(GeodeDC));
+    dprintf(2, "vp addr: 0x%08x\n", GET_GLOBAL(GeodeVP));
 
     /* setup framebuffer */
     geode_dc_write(DC_UNLOCK, DC_LOCK_UNLOCK);
@@ -420,7 +420,7 @@ int geodevga_setup(void)
     geode_dc_write(DC_UNLOCK, DC_LOCK_LOCK);
 
     u32 fb_size = framebuffer_size(); // in byte
-    dprintf(1, "%d KB of video memory at 0x%08x\n", fb_size / 1024, fb);
+    dprintf(2, "%d KB of video memory at 0x%08x\n", fb_size / 1024, fb);
 
     /* update VBE variables */
     SET_VGA(VBE_framebuffer, fb);

@@ -50,7 +50,7 @@ serial_setup(void)
     count += detect_serial(PORT_SERIAL2, 0x0a, count);
     count += detect_serial(PORT_SERIAL3, 0x0a, count);
     count += detect_serial(PORT_SERIAL4, 0x0a, count);
-    dprintf(1, "Found %d serial ports\n", count);
+    dprintf(2, "Found %d serial ports\n", count);
 
     // Equipment word bits 9..11 determing # serial ports
     set_equipment_flags(0xe00, count << 9);
@@ -221,7 +221,7 @@ lpt_setup(void)
     u16 count = 0;
     count += detect_parport(PORT_LPT1, 0x14, count);
     count += detect_parport(PORT_LPT2, 0x14, count);
-    dprintf(1, "Found %d lpt ports\n", count);
+    dprintf(2, "Found %d lpt ports\n", count);
 
     // Equipment word bits 14..15 determing # parallel ports
     set_equipment_flags(0xc000, count << 14);

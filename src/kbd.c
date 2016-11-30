@@ -407,7 +407,7 @@ __process_key(u8 scancode)
 
     switch (scancode) {
     case 0x00:
-        dprintf(1, "KBD: int09 handler: AL=0\n");
+        dprintf(2, "KBD: int09 handler: AL=0\n");
         return;
 
     case 0x3a: /* Caps Lock press */
@@ -500,7 +500,7 @@ __process_key(u8 scancode)
             reset();
         }
         if (scancode >= ARRAY_SIZE(scan_to_keycode)) {
-            dprintf(1, "KBD: int09h_handler(): unknown scancode read: 0x%02x!\n"
+            dprintf(2, "KBD: int09h_handler(): unknown scancode read: 0x%02x!\n"
                     , scancode);
             return;
         }
@@ -527,7 +527,7 @@ __process_key(u8 scancode)
                 keycode = GET_GLOBAL(info->normal);
         }
         if (!keycode)
-            dprintf(1, "KBD: keycode is zero?\n");
+            dprintf(2, "KBD: keycode is zero?\n");
         enqueue_key(keycode);
         break;
     }

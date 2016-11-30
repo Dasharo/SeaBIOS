@@ -71,8 +71,8 @@
 // Debugging levels.  If non-zero and CONFIG_DEBUG_LEVEL is greater
 // than the specified value, then the corresponding irq handler will
 // report every enter event.
-#define DEBUG_ISR_02 1
-#define DEBUG_HDL_05 1
+#define DEBUG_ISR_02 2
+#define DEBUG_HDL_05 2
 #define DEBUG_ISR_08 20
 #define DEBUG_ISR_09 9
 #define DEBUG_ISR_0e 9
@@ -84,20 +84,20 @@
 #define DEBUG_HDL_15 9
 #define DEBUG_HDL_16 9
 #define DEBUG_HDL_17 2
-#define DEBUG_HDL_18 1
-#define DEBUG_HDL_19 1
+#define DEBUG_HDL_18 2
+#define DEBUG_HDL_19 2
 #define DEBUG_HDL_1a 9
-#define DEBUG_HDL_40 1
+#define DEBUG_HDL_40 2
 #define DEBUG_ISR_70 9
 #define DEBUG_ISR_74 9
-#define DEBUG_ISR_75 1
+#define DEBUG_ISR_75 2
 #define DEBUG_ISR_76 10
 #define DEBUG_ISR_hwpic1 5
 #define DEBUG_ISR_hwpic2 5
 #define DEBUG_HDL_smi 9
-#define DEBUG_HDL_smp 1
-#define DEBUG_HDL_pnp 1
-#define DEBUG_HDL_pmm 1
+#define DEBUG_HDL_smp 2
+#define DEBUG_HDL_pnp 2
+#define DEBUG_HDL_pmm 2
 #define DEBUG_HDL_pcibios 9
 #define DEBUG_HDL_apm 9
 

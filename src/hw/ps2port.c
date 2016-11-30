@@ -169,13 +169,13 @@ ps2_recvbyte(int aux, int needack, int timeout)
                 if (data == PS2_RET_ACK)
                     return data;
                 if (data == PS2_RET_NAK) {
-                    dprintf(1, "Got ps2 nak (status=%x)\n", status);
+                    dprintf(2, "Got ps2 nak (status=%x)\n", status);
                     return data;
                 }
             }
 
             // This data not part of command - just discard it.
-            dprintf(1, "Discarding ps2 data %02x (status=%02x)\n", data, status);
+            dprintf(2, "Discarding ps2 data %02x (status=%02x)\n", data, status);
         }
 
         if (timer_check(end)) {
@@ -373,7 +373,7 @@ handle_74(void)
     u8 v = inb(PORT_PS2_STATUS);
     if ((v & (I8042_STR_OBF|I8042_STR_AUXDATA))
         != (I8042_STR_OBF|I8042_STR_AUXDATA)) {
-        dprintf(1, "ps2 mouse irq but no mouse data.\n");
+        dprintf(2, "ps2 mouse irq but no mouse data.\n");
         goto done;
     }
     v = inb(PORT_PS2_DATA);
@@ -400,7 +400,7 @@ handle_09(void)
     // read key from keyboard controller
     u8 v = inb(PORT_PS2_STATUS);
     if (v & I8042_STR_AUXDATA) {
-        dprintf(1, "ps2 keyboard irq but found mouse data?!\n");
+        dprintf(2, "ps2 keyboard irq but found mouse data?!\n");
         goto done;
     }
     v = inb(PORT_PS2_DATA);
@@ -516,7 +516,7 @@ ps2_keyboard_setup(void *data)
     if (ret)
         return;
 
-    dprintf(1, "PS2 keyboard initialized\n");
+    dprintf(2, "PS2 keyboard initialized\n");
 }
 
 void

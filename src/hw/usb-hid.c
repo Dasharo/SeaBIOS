@@ -75,7 +75,7 @@ usb_kbd_setup(struct usbdevice_s *usbdev
     if (!keyboard_pipe)
         return -1;
 
-    dprintf(1, "USB keyboard initialized\n");
+    dprintf(2, "USB keyboard initialized\n");
     return 0;
 }
 
@@ -101,7 +101,7 @@ usb_mouse_setup(struct usbdevice_s *usbdev
     if (!mouse_pipe)
         return -1;
 
-    dprintf(1, "USB mouse initialized\n");
+    dprintf(2, "USB mouse initialized\n");
     return 0;
 }
 

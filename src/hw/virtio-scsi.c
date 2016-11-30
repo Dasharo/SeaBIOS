@@ -136,7 +136,7 @@ static void
 init_virtio_scsi(void *data)
 {
     struct pci_device *pci = data;
-    dprintf(1, "found virtio-scsi at %pP\n", pci);
+    dprintf(2, "found virtio-scsi at %pP\n", pci);
     struct vring_virtqueue *vq = NULL;
     struct vp_device *vp = malloc_high(sizeof(*vp));
     if (!vp) {

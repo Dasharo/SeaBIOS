@@ -748,7 +748,7 @@ init_drive_atapi(struct atadrive_s *dummy, u16 *buffer)
                           , ata_extract_model(model, MAXMODEL, buffer)
                           , ata_extract_version(buffer)
                           , (iscd ? "DVD/CD" : "Device"));
-    dprintf(1, "%s\n", desc);
+    dprintf(2, "%s\n", desc);
 
     // fill cdidmap
     if (iscd) {
@@ -800,7 +800,7 @@ init_drive_ata(struct atadrive_s *dummy, u16 *buffer)
                           , ata_extract_model(model, MAXMODEL, buffer)
                           , ata_extract_version(buffer)
                           , (u32)adjsize, adjprefix);
-    dprintf(1, "%s\n", desc);
+    dprintf(2, "%s\n", desc);
 
     int prio = bootprio_find_ata_device(adrive->chan_gf->pci_tmp,
                                         adrive->chan_gf->chanid,
@@ -934,7 +934,7 @@ init_controller(struct pci_device *pci, int chanid, int irq
     chan_gf->iobase1 = port1;
     chan_gf->iobase2 = port2;
     chan_gf->iomaster = master;
-    dprintf(1, "ATA controller %d at %x/%x/%x (irq %d dev %x)\n"
+    dprintf(2, "ATA controller %d at %x/%x/%x (irq %d dev %x)\n"
             , ataid, port1, port2, master, irq, chan_gf->pci_bdf);
     run_thread(ata_detect, chan_gf);
 }

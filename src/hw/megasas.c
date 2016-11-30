@@ -368,7 +368,7 @@ init_megasas(void *data)
         return;
     pci_enable_busmaster(pci);
 
-    dprintf(1, "found MegaRAID SAS at %pP, io @ %x\n", pci, iobase);
+    dprintf(2, "found MegaRAID SAS at %pP, io @ %x\n", pci, iobase);
 
     // reset
     if (megasas_transition_to_ready(pci, iobase) == 0)

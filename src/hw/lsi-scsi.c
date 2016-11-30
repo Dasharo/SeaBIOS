@@ -177,7 +177,7 @@ init_lsi_scsi(void *data)
         return;
     pci_enable_busmaster(pci);
 
-    dprintf(1, "found lsi53c895a at %pP, io @ %x\n", pci, iobase);
+    dprintf(2, "found lsi53c895a at %pP, io @ %x\n", pci, iobase);
 
     // reset
     outb(LSI_ISTAT0_SRST, iobase + LSI_REG_ISTAT0);

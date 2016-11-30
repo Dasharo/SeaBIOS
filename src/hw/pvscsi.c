@@ -303,7 +303,7 @@ init_pvscsi(void *data)
         return;
     pci_enable_busmaster(pci);
 
-    dprintf(1, "found pvscsi at %pP, io @ %p\n", pci, iobase);
+    dprintf(2, "found pvscsi at %pP, io @ %p\n", pci, iobase);
 
     pvscsi_write_cmd_desc(iobase, PVSCSI_CMD_ADAPTER_RESET, NULL, 0);
 

@@ -197,7 +197,7 @@ init_esp_scsi(void *data)
         return;
     pci_enable_busmaster(pci);
 
-    dprintf(1, "found esp at %pP, io @ %x\n", pci, iobase);
+    dprintf(2, "found esp at %pP, io @ %x\n", pci, iobase);
 
     // reset
     outb(ESP_CMD_RESET, iobase + ESP_CMD);

@@ -538,7 +538,7 @@ __end_thread(struct thread_info *old)
     dprintf(DEBUG_thread, "\\%08x/ End thread\n", (u32)old);
     free(old);
     if (!have_threads())
-        dprintf(1, "All threads complete.\n");
+        dprintf(2, "All threads complete.\n");
 }
 
 // Create a new thread and start executing 'func' in it.

@@ -162,7 +162,7 @@ setup_translation(struct drive_s *drive)
     // clip to 1024 cylinders in lchs
     if (cylinders > 1024)
         cylinders = 1024;
-    dprintf(1, "drive %p: PCHS=%u/%d/%d translation=%s LCHS=%d/%d/%d s=%u\n"
+    dprintf(2, "drive %p: PCHS=%u/%d/%d translation=%s LCHS=%d/%d/%d s=%u\n"
             , drive
             , drive->pchs.cylinder, drive->pchs.head, drive->pchs.sector
             , desc

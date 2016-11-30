@@ -25,7 +25,7 @@ handle_resume(void)
     ASSERT16();
     int status = rtc_read(CMOS_RESET_CODE);
     rtc_write(CMOS_RESET_CODE, 0);
-    dprintf(1, "In resume (status=%d)\n", status);
+    dprintf(2, "In resume (status=%d)\n", status);
 
     dma_setup();
 
@@ -109,7 +109,7 @@ s3_resume(void)
     // Invoke the resume vector.
     struct bregs br;
     memset(&br, 0, sizeof(br));
-    dprintf(1, "Jump to resume vector (%x)\n", s3_resume_vector);
+    dprintf(2, "Jump to resume vector (%x)\n", s3_resume_vector);
     br.code = FLATPTR_TO_SEGOFF((void*)s3_resume_vector);
     farcall16big(&br);
 }
@@ -118,7 +118,7 @@ s3_resume(void)
 static void
 tryReboot(void)
 {
-    dprintf(1, "Attempting a hard reboot\n");
+    dprintf(2, "Attempting a hard reboot\n");
 
     // Setup for reset on qemu.
     qemu_prep_reset();
@@ -142,7 +142,7 @@ void VISIBLE32FLAT
 handle_resume32(int status)
 {
     ASSERT32FLAT();
-    dprintf(1, "In 32bit resume\n");
+    dprintf(2, "In 32bit resume\n");
 
     if (status == 0xfe)
         s3_resume();

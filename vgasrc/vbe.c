@@ -73,7 +73,7 @@ vbe_104f01(struct bregs *regs)
     struct vbe_mode_info *info = (void*)(regs->di+0);
     u16 mode = regs->cx;
 
-    dprintf(1, "VBE mode info request: %x\n", mode);
+    dprintf(2, "VBE mode info request: %x\n", mode);
 
     struct vgamode_s *vmode_g = vgahw_find_mode(mode & ~MF_VBEFLAGS);
     if (! vmode_g) {
@@ -204,7 +204,7 @@ vbe_104f01(struct bregs *regs)
 static void
 vbe_104f02(struct bregs *regs)
 {
-    dprintf(1, "VBE mode set: %x\n", regs->bx);
+    dprintf(2, "VBE mode set: %x\n", regs->bx);
 
     int mode = regs->bx & ~MF_VBEFLAGS;
     int flags = regs->bx & MF_VBEFLAGS;
@@ -218,7 +218,7 @@ static void
 vbe_104f03(struct bregs *regs)
 {
     regs->bx = GET_BDA_EXT(vbe_mode);
-    dprintf(1, "VBE current mode=%x\n", regs->bx);
+    dprintf(2, "VBE current mode=%x\n", regs->bx);
     regs->ax = 0x004f;
 }
 

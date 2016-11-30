@@ -94,7 +94,7 @@ tsctimer_setup(void)
     TimerKHz = DIV_ROUND_UP((u32)t, 1000 * PMTIMER_TO_PIT);
     TimerPort = 0;
 
-    dprintf(1, "CPU Mhz=%u\n", (TimerKHz << ShiftTSC) / 1000);
+    dprintf(2, "CPU Mhz=%u\n", (TimerKHz << ShiftTSC) / 1000);
 }
 
 // Setup internal timers.
@@ -118,7 +118,7 @@ pmtimer_setup(u16 ioport)
 {
     if (!CONFIG_PMTIMER)
         return;
-    dprintf(1, "Using pmtimer, ioport 0x%x\n", ioport);
+    dprintf(2, "Using pmtimer, ioport 0x%x\n", ioport);
     TimerPort = ioport;
     TimerKHz = DIV_ROUND_UP(PMTIMER_HZ, 1000);
 }

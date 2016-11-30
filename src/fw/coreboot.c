@@ -258,7 +258,7 @@ coreboot_preinit(void)
     if (cbmb) {
         CBvendor = &cbmb->strings[cbmb->vendor_idx];
         CBpart = &cbmb->strings[cbmb->part_idx];
-        dprintf(1, "Found mainboard %s %s\n", CBvendor, CBpart);
+        dprintf(2, "Found mainboard %s %s\n", CBvendor, CBpart);
     }
 
  //   get_cbmem_bootorder_file();  // TEST
@@ -553,7 +553,7 @@ cbfs_run_payload(struct cbfs_file *fhdr)
 {
     if (!CONFIG_COREBOOT_FLASH || !fhdr)
         return;
-    dprintf(1, "Run %s\n", fhdr->filename);
+    dprintf(2, "Run %s\n", fhdr->filename);
     struct cbfs_payload *pay = (void*)fhdr + be32_to_cpu(fhdr->offset);
     struct cbfs_payload_segment *seg = pay->segments;
     for (;;) {
@@ -567,7 +567,7 @@ cbfs_run_payload(struct cbfs_file *fhdr)
             memset(dest, 0, dest_len);
             break;
         case PAYLOAD_SEGMENT_ENTRY: {
-            dprintf(1, "Calling addr %p\n", dest);
+            dprintf(2, "Calling addr %p\n", dest);
             void (*func)(void) = dest;
             func();
             return;

@@ -143,7 +143,7 @@ set_active_page(u8 page)
     SET_BDA(video_pagestart, address);
     SET_BDA(video_page, page);
 
-    dprintf(1, "Set active page %02x address %04x\n", page, address);
+    dprintf(2, "Set active page %02x address %04x\n", page, address);
 
     // Display the cursor, now the page is active
     set_cursor_pos(get_cursor_pos(page));
@@ -282,7 +282,7 @@ get_current_mode(void)
 int
 vga_set_mode(int mode, int flags)
 {
-    dprintf(1, "set VGA mode %x\n", mode);
+    dprintf(2, "set VGA mode %x\n", mode);
     struct vgamode_s *vmode_g = vgahw_find_mode(mode);
     if (!vmode_g)
         return VBE_RETURN_STATUS_FAILED;

@@ -444,7 +444,7 @@ clext_set_mode(struct vgamode_s *vmode_g, int flags)
 {
     if (!is_cirrus_mode(vmode_g)) {
         cirrus_switch_mode(&mode_switchback);
-        dprintf(1, "cirrus mode switch regular\n");
+        dprintf(2, "cirrus mode switch regular\n");
         return stdvga_set_mode(vmode_g, flags);
     }
     struct cirrus_mode_s *table_g = container_of(
@@ -597,10 +597,10 @@ clext_setup(void)
     if (ret)
         return ret;
 
-    dprintf(1, "cirrus init\n");
+    dprintf(2, "cirrus init\n");
     if (! cirrus_check())
         return -1;
-    dprintf(1, "cirrus init 2\n");
+    dprintf(2, "cirrus init 2\n");
 
     // memory setup
     stdvga_sequ_write(0x0a, stdvga_sequ_read(0x0f) & 0x18);

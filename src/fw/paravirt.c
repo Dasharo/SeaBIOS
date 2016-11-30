@@ -57,7 +57,7 @@ static void kvm_detect(void)
     signature[12] = 0;
 
     if (strcmp(signature, "KVMKVMKVM") == 0) {
-        dprintf(1, "Running on KVM\n");
+        dprintf(2, "Running on KVM\n");
         PlatformRunningOn |= PF_KVM;
     }
 }
@@ -82,13 +82,13 @@ static void qemu_detect(void)
     PlatformRunningOn |= PF_QEMU;
     switch (d) {
     case 0x1237:
-        dprintf(1, "Running on QEMU (i440fx)\n");
+        dprintf(2, "Running on QEMU (i440fx)\n");
         break;
     case 0x29c0:
-        dprintf(1, "Running on QEMU (q35)\n");
+        dprintf(2, "Running on QEMU (q35)\n");
         break;
     default:
-        dprintf(1, "Running on QEMU (unknown nb: %04x:%04x)\n", v, d);
+        dprintf(2, "Running on QEMU (unknown nb: %04x:%04x)\n", v, d);
         break;
     }
     kvm_detect();
@@ -128,7 +128,7 @@ qemu_preinit(void)
     /* reserve 256KB BIOS area at the end of 4 GB */
     e820_add(0xfffc0000, 256*1024, E820_RESERVED);
 
-    dprintf(1, "RamSize: 0x%08x [cmos]\n", RamSize);
+    dprintf(2, "RamSize: 0x%08x [cmos]\n", RamSize);
 }
 
 void
@@ -338,7 +338,7 @@ qemu_cfg_e820(void)
         for (i = 0; i < size / sizeof(struct e820_reservation); i++) {
             switch (table[i].type) {
             case E820_RAM:
-                dprintf(1, "RamBlock: addr 0x%016llx len 0x%016llx [e820]\n",
+                dprintf(2, "RamBlock: addr 0x%016llx len 0x%016llx [e820]\n",
                         table[i].address, table[i].length);
                 if (table[i].address < RamSize)
                     // ignore, preinit got it from cmos already and
@@ -393,7 +393,7 @@ qemu_cfg_e820(void)
                 | ((u64)rtc_read(CMOS_MEM_HIGHMEM_HIGH) << 32));
     RamSizeOver4G = high;
     e820_add(0x100000000ull, high, E820_RAM);
-    dprintf(1, "RamSizeOver4G: 0x%016llx [cmos]\n", RamSizeOver4G);
+    dprintf(2, "RamSizeOver4G: 0x%016llx [cmos]\n", RamSizeOver4G);
 }
 
 // Populate romfile entries for legacy fw_cfg ports (that predate the
@@ -477,14 +477,14 @@ void qemu_cfg_init(void)
         if (inb(PORT_QEMU_CFG_DATA) != sig[i])
             return;
 
-    dprintf(1, "Found QEMU fw_cfg\n");
+    dprintf(2, "Found QEMU fw_cfg\n");
 
     // Detect DMA interface.
     u32 id;
     qemu_cfg_read_entry(&id, QEMU_CFG_ID, sizeof(id));
 
     if (id & QEMU_CFG_VERSION_DMA) {
-        dprintf(1, "QEMU fw_cfg DMA interface supported\n");
+        dprintf(2, "QEMU fw_cfg DMA interface supported\n");
         cfg_dma_enabled = 1;
     }
 
@@ -507,6 +507,6 @@ void qemu_cfg_init(void)
 
     if (romfile_find("etc/table-loader")) {
         acpi_pm_base = 0x0600;
-        dprintf(1, "Moving pm_base to 0x%x\n", acpi_pm_base);
+        dprintf(2, "Moving pm_base to 0x%x\n", acpi_pm_base);
     }
 }

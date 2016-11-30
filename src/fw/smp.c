@@ -145,6 +145,6 @@ smp_setup(void)
     if (!MaxCountCPUs || MaxCountCPUs < CountCPUs)
         MaxCountCPUs = CountCPUs;
 
-    dprintf(1, "Found %d cpu(s) max supported %d cpu(s)\n", CountCPUs,
+    dprintf(2, "Found %d cpu(s) max supported %d cpu(s)\n", CountCPUs,
             MaxCountCPUs);
 }
