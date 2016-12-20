@@ -20,3 +20,7 @@ Fourth digit in release number means PC Engines patch.
 
 ### Fixed
 - prevented from printing character multiple times
+
+[Unreleased]: https://github.com/pcengines/seabios/compare/rel-1.9.2.2...coreboot-4.0.x
+[rel-1.9.2.2]: https://github.com/pcengines/seabios/compare/rel-1.9.2.1...rel-1.9.2.2
+[rel-1.9.2.1]: https://github.com/pcengines/seabios/compare/rel-1.9.2...rel-1.9.2.1
