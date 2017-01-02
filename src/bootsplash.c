@@ -44,6 +44,10 @@ enable_vga_console(void)
 
     /* Enable VGA text mode */
     memset(&br, 0, sizeof(br));
+
+    // From set_video_mode
+    // (https://github.com/alson/sgabios/blob/master/sgabios.S):
+    // unless bit 7 of al = 1 (0x80), setting mode clears screen
     br.ax = 0x0083;
     call16_int10(&br);
 
