@@ -44,7 +44,7 @@ enable_vga_console(void)
 
     /* Enable VGA text mode */
     memset(&br, 0, sizeof(br));
-    br.ax = 0x0003;
+    br.ax = 0x0083;
     call16_int10(&br);
 
     // Write to screen.
