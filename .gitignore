@@ -2,3 +2,5 @@ out
 *.pyc
 .config
 .config.old
+.tags
+.tags_sorted_by_file
