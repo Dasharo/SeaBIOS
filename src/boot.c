@@ -55,7 +55,7 @@ loadBootOrder(void)
         return;
     }
 
-    dprintf(2, "boot order:\n");
+    dprintf(1, "boot order:\n");
     i = 0;
     do {
         Bootorder[i] = f;
@@ -63,7 +63,7 @@ loadBootOrder(void)
         if (f)
             *(f++) = '\0';
         Bootorder[i] = nullTrailingSpace(Bootorder[i]);
-        dprintf(2, "%d: %s\n", i+1, Bootorder[i]);
+        dprintf(1, "%d: %s\n", i+1, Bootorder[i]);
         i++;
     } while (f);
 }
@@ -95,7 +95,7 @@ glob_prefix(const char *glob, const char *str)
 static int
 find_prio(const char *glob)
 {
-    dprintf(2, "Searching bootorder for: %s\n", glob);
+    dprintf(1, "Searching bootorder for: %s\n", glob);
     int i;
     for (i = 0; i < BootorderCount; i++)
         if (glob_prefix(glob, Bootorder[i]))
@@ -494,7 +494,7 @@ interactive_bootmenu(void)
 
     char *bootmsg = romfile_loadfile("etc/boot-menu-message", NULL);
     int menukey = romfile_loadint("etc/boot-menu-key", 1);
-    dprintf(1, "%s", bootmsg && pxen == 1 ? bootmsg : "\nPress F10 key now for boot menu\n\n");
+    printf("%s", bootmsg && pxen == 1 ? bootmsg : "\nPress F10 key now for boot menu\n\n");
     free(bootmsg);
 
     u32 menutime = romfile_loadint("etc/boot-menu-wait", DEFAULT_BOOTMENU_WAIT);
@@ -526,14 +526,14 @@ interactive_bootmenu(void)
     }
     // Show menu items if menu-key is pressed
     else {
-        dprintf(1, "Select boot device:\n\n");
+        printf("Select boot device:\n\n");
         wait_threads();
 
         // Show menu items
         hlist_for_each_entry(pos, &BootList, node) {
             char desc[60];
             maxmenu++;
-            dprintf(1, "%d. %s\n", maxmenu
+            printf("%d. %s\n", maxmenu
                    , strtcpy(desc, pos->description, ARRAY_SIZE(desc)));
         }
         if (tpm_can_show_menu()) {

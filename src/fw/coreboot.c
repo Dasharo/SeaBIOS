@@ -118,7 +118,6 @@ static struct cb_header *
 find_cb_header(u32 addr, int len)
 {
     u32 end = addr + len;
-
     for (; addr < end; addr += 16) {
         struct cb_header *cbh = (void*)addr;
         if (GET_FARVAR(0, cbh->signature) != CB_SIGNATURE)
@@ -136,7 +135,7 @@ find_cb_header(u32 addr, int len)
     return NULL;
 }
 
-// Try to find the specified coreboot record
+// Try to find the coreboot memory table in the given coreboot table.
 void *
 find_cb_subtable(struct cb_header *cbh, u32 tag)
 {
@@ -144,10 +143,10 @@ find_cb_subtable(struct cb_header *cbh, u32 tag)
     u32 count = GET_FARVAR(0, cbh->table_entries);
     int i;
     for (i=0; i<count; i++) {
-        struct cb_record *cbr = (void*)tbl;
-        tbl += GET_FARVAR(0, cbr->size);
-        if (GET_FARVAR(0, cbr->tag) == tag)
-            return cbr;
+        struct cb_memory *cbm = (void*)tbl;
+        tbl += GET_FARVAR(0, cbm->size);
+        if (GET_FARVAR(0, cbm->tag) == tag)
+            return cbm;
     }
     return NULL;
 }
@@ -250,18 +249,16 @@ coreboot_preinit(void)
     struct cb_cbmem_ref *cbref = find_cb_subtable(cbh, CB_TAG_CBMEM_CONSOLE);
     if (cbref) {
         cbcon = (void*)(u32)cbref->cbmem_addr;
-        // debug_banner();
-        dprintf(3, "Found coreboot cbmem console @ %llx\n", cbref->cbmem_addr);
+        debug_banner();
+        dprintf(1, "Found coreboot cbmem console @ %llx\n", cbref->cbmem_addr);
     }
 
     struct cb_mainboard *cbmb = find_cb_subtable(cbh, CB_TAG_MAINBOARD);
     if (cbmb) {
         CBvendor = &cbmb->strings[cbmb->vendor_idx];
         CBpart = &cbmb->strings[cbmb->part_idx];
-        dprintf(2, "Found mainboard %s %s\n", CBvendor, CBpart);
+        dprintf(1, "Found mainboard %s %s\n", CBvendor, CBpart);
     }
-
- //   get_cbmem_bootorder_file();  // TEST
 
     return;
 
@@ -491,7 +488,7 @@ coreboot_cbfs_init(void)
                 , hdr, hdr->magic, cpu_to_be32(CBFS_HEADER_MAGIC));
         return;
     }
-    dprintf(3, "Found CBFS header at %p\n", hdr);
+    dprintf(1, "Found CBFS header at %p\n", hdr);
 
     u32 romsize = be32_to_cpu(hdr->romsize);
     u32 romstart = CONFIG_CBFS_LOCATION - romsize;
@@ -553,7 +550,7 @@ cbfs_run_payload(struct cbfs_file *fhdr)
 {
     if (!CONFIG_COREBOOT_FLASH || !fhdr)
         return;
-    dprintf(2, "Run %s\n", fhdr->filename);
+    dprintf(1, "Run %s\n", fhdr->filename);
     struct cbfs_payload *pay = (void*)fhdr + be32_to_cpu(fhdr->offset);
     struct cbfs_payload_segment *seg = pay->segments;
     for (;;) {
@@ -567,7 +564,7 @@ cbfs_run_payload(struct cbfs_file *fhdr)
             memset(dest, 0, dest_len);
             break;
         case PAYLOAD_SEGMENT_ENTRY: {
-            dprintf(2, "Calling addr %p\n", dest);
+            dprintf(1, "Calling addr %p\n", dest);
             void (*func)(void) = dest;
             func();
             return;

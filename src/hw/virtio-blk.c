@@ -98,7 +98,7 @@ init_virtio_blk(void *data)
 {
     struct pci_device *pci = data;
     u8 status = VIRTIO_CONFIG_S_ACKNOWLEDGE | VIRTIO_CONFIG_S_DRIVER;
-    dprintf(2, "found virtio-blk at %pP\n", pci);
+    dprintf(1, "found virtio-blk at %pP\n", pci);
     struct virtiodrive_s *vdrive = malloc_fseg(sizeof(*vdrive));
     if (!vdrive) {
         warn_noalloc();

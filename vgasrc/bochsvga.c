@@ -410,7 +410,7 @@ bochsvga_setup(void)
         }
         u32 bar = pci_config_readl(bdf, PCI_BASE_ADDRESS_0 + barid * 4);
         lfb_addr = bar & PCI_BASE_ADDRESS_MEM_MASK;
-        dprintf(2, "VBE DISPI: bdf %02x:%02x.%x, bar %d\n", pci_bdf_to_bus(bdf)
+        dprintf(1, "VBE DISPI: bdf %02x:%02x.%x, bar %d\n", pci_bdf_to_bus(bdf)
                 , pci_bdf_to_dev(bdf), pci_bdf_to_fn(bdf), barid);
     }
 
@@ -420,7 +420,7 @@ bochsvga_setup(void)
     SET_VGA(VBE_win_granularity, 64);
     SET_VGA(VBE_capabilities, VBE_CAPABILITY_8BIT_DAC);
 
-    dprintf(2, "VBE DISPI: lfb_addr=%x, size %d MB\n",
+    dprintf(1, "VBE DISPI: lfb_addr=%x, size %d MB\n",
             lfb_addr, totalmem >> 20);
 
     // Validate modes
@@ -438,7 +438,7 @@ bochsvga_setup(void)
                    * stdvga_vram_ratio(&m->info));
 
         if (width > max_xres || depth > max_bpp || mem > totalmem) {
-            dprintf(2, "Removing mode %x\n", GET_GLOBAL(m->mode));
+            dprintf(1, "Removing mode %x\n", GET_GLOBAL(m->mode));
             SET_VGA(m->mode, 0xffff);
         }
     }

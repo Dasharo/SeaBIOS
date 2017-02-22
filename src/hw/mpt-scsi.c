@@ -252,7 +252,7 @@ init_mpt_scsi(void *data)
     struct MptIOCInitReply MptIOCInitReply;
     pci_enable_busmaster(pci);
 
-    dprintf(2, "found mpt-scsi(%04x) at %pP, io @ %x\n"
+    dprintf(1, "found mpt-scsi(%04x) at %pP, io @ %x\n"
             , pci->device, pci, iobase);
 
     // reset

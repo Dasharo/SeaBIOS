@@ -38,7 +38,7 @@ copy_pir(void *pos)
         warn_noalloc();
         return;
     }
-    dprintf(2, "Copying PIR from %p to %p\n", pos, newpos);
+    dprintf(1, "Copying PIR from %p to %p\n", pos, newpos);
     memcpy(newpos, pos, p->size);
     PirAddr = newpos;
 }
@@ -68,7 +68,7 @@ copy_mptable(void *pos)
         warn_noalloc();
         return;
     }
-    dprintf(2, "Copying MPTABLE from %p/%x to %p\n", pos, p->physaddr, newpos);
+    dprintf(1, "Copying MPTABLE from %p/%x to %p\n", pos, p->physaddr, newpos);
     memcpy(newpos, pos, length);
     newpos->physaddr = (u32)newpos + length;
     newpos->checksum -= checksum(newpos, sizeof(*newpos));
@@ -116,7 +116,7 @@ copy_acpi_rsdp(void *pos)
         warn_noalloc();
         return;
     }
-    dprintf(2, "Copying ACPI RSDP from %p to %p\n", pos, newpos);
+    dprintf(1, "Copying ACPI RSDP from %p to %p\n", pos, newpos);
     memcpy(newpos, pos, length);
     RsdpAddr = newpos;
 }
@@ -188,7 +188,7 @@ acpi_reboot(void)
 
     u64 addr = le64_to_cpu(acpi_reset_reg.address);
 
-    dprintf(2, "ACPI hard reset %d:%llx (%x)\n",
+    dprintf(1, "ACPI hard reset %d:%llx (%x)\n",
             acpi_reset_reg.address_space_id, addr, acpi_reset_val);
 
     switch (acpi_reset_reg.address_space_id) {
@@ -289,7 +289,7 @@ copy_smbios(void *pos)
         warn_noalloc();
         return;
     }
-    dprintf(2, "Copying SMBIOS entry point from %p to %p\n", pos, newpos);
+    dprintf(1, "Copying SMBIOS entry point from %p to %p\n", pos, newpos);
     memcpy(newpos, pos, p->length);
     SMBiosAddr = newpos;
 }

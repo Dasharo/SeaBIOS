@@ -373,7 +373,7 @@ xhci_hub_reset(struct usbhub_s *hub, u32 port)
     }
 
     int rc = speed_from_xhci[xhci_get_field(portsc, XHCI_PORTSC_SPEED)];
-    xhci_print_port_state(2, "XHCI", port, portsc);
+    xhci_print_port_state(1, "XHCI", port, portsc);
     return rc;
 }
 
@@ -498,7 +498,7 @@ configure_xhci(void *data)
         return;
 
     // No devices found - shutdown and free controller.
-    dprintf(2, "XHCI no devices found\n");
+    dprintf(1, "XHCI no devices found\n");
     reg = readl(&xhci->op->usbcmd);
     reg &= ~XHCI_CMD_RS;
     writel(&xhci->op->usbcmd, reg);
@@ -541,7 +541,7 @@ xhci_controller_setup(struct pci_device *pci)
     xhci->usb.pci = pci;
     xhci->usb.type = USB_TYPE_XHCI;
 
-    dprintf(2, "XHCI init on dev %pP: regs @ %p, %d ports, %d slots"
+    dprintf(1, "XHCI init on dev %pP: regs @ %p, %d ports, %d slots"
             ", %d byte contexts\n"
             , pci, xhci->caps, xhci->ports, xhci->slots
             , xhci->context64 ? 64 : 32);
@@ -556,7 +556,7 @@ xhci_controller_setup(struct pci_device *pci)
             case 0x02:
                 name  = readl(&xcap->data[0]);
                 ports = readl(&xcap->data[1]);
-                dprintf(2, "XHCI    protocol %c%c%c%c %x.%02x"
+                dprintf(1, "XHCI    protocol %c%c%c%c %x.%02x"
                         ", %d ports (offset %d), def %x\n"
                         , (name >>  0) & 0xff
                         , (name >>  8) & 0xff
@@ -569,7 +569,7 @@ xhci_controller_setup(struct pci_device *pci)
                         , ports >> 16);
                 break;
             default:
-                dprintf(2, "XHCI    extcap 0x%x @ %p\n", cap & 0xff, addr);
+                dprintf(1, "XHCI    extcap 0x%x @ %p\n", cap & 0xff, addr);
                 break;
             }
             off = (cap >> 8) & 0xff;
@@ -1040,7 +1040,7 @@ xhci_realloc_pipe(struct usbdevice_s *usbdev, struct usb_pipe *upipe
         return upipe;
 
     // maxpacket has changed on control endpoint - update controller.
-    dprintf(2, "%s: reconf ctl endpoint pkt size: %d -> %d\n",
+    dprintf(1, "%s: reconf ctl endpoint pkt size: %d -> %d\n",
             __func__, oldmaxpacket, pipe->pipe.maxpacket);
     struct xhci_inctx *in = xhci_alloc_inctx(usbdev, 1);
     if (!in)

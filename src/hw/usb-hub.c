@@ -198,7 +198,7 @@ usb_hub_setup(struct usbdevice_s *usbdev)
 
     usb_enumerate(&hub);
 
-    dprintf(2, "Initialized USB HUB (%d ports used)\n", hub.devcount);
+    dprintf(1, "Initialized USB HUB (%d ports used)\n", hub.devcount);
     if (hub.devcount)
         return 0;
     return -1;

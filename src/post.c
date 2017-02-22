@@ -265,7 +265,7 @@ reloc_preinit(void *f, void *arg)
         panic("No space for init relocation.\n");
 
     // Copy code and update relocs (init absolute, init relative, and runtime)
-    dprintf(2, "Relocating init from %p to %p (size %d)\n"
+    dprintf(1, "Relocating init from %p to %p (size %d)\n"
             , codesrc, codedest, initsize);
     s32 delta = codedest - codesrc;
     memcpy(codedest, codesrc, initsize);

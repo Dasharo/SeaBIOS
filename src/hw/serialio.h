@@ -17,11 +17,10 @@
 #define SEROFF_DLH     1
 #define SEROFF_IIR     2
 #define SEROFF_LCR     3
-
 #define SEROFF_LSR     5
-#define UART_THRE (1 << 5)
-
 #define SEROFF_MSR     6
+
+#define UART_THRE (1 << 5)
 
 void serial_debug_preinit(void);
 void serial_debug_putc(char c);

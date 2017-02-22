@@ -57,7 +57,7 @@ serial_debug_preinit(void)
     serial_debug_write(SEROFF_IER, newier);
 
     if (oldparam != newparam || oldier != newier)
-        dprintf(2, "Changing serial settings was %x/%x now %x/%x\n"
+        dprintf(1, "Changing serial settings was %x/%x now %x/%x\n"
                 , oldparam, oldier, newparam, newier);
 }
 

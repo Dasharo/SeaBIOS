@@ -57,7 +57,7 @@ allocate_extra_stack(void)
         if (checksum_far(SEG_BIOS, pmm, GET_FARVAR(SEG_BIOS, pmm->length)))
             continue;
         struct segoff_s entry = GET_FARVAR(SEG_BIOS, pmm->entry);
-        dprintf(2, "Attempting to allocate VGA stack via pmm call to %04x:%04x\n"
+        dprintf(1, "Attempting to allocate VGA stack via pmm call to %04x:%04x\n"
                 , entry.seg, entry.offset);
         u16 res1, res2;
         asm volatile(
@@ -74,7 +74,7 @@ allocate_extra_stack(void)
         u32 res = res1 | (res2 << 16);
         if (!res || res == PMM_FUNCTION_NOT_SUPPORTED)
             return;
-        dprintf(2, "VGA stack allocated at %x\n", res);
+        dprintf(1, "VGA stack allocated at %x\n", res);
         SET_VGA(ExtraStackSeg, res >> 4);
         extern void entry_10_extrastack(void);
         SET_IVT(0x10, SEGOFF(get_global_seg(), (u32)entry_10_extrastack));
@@ -106,7 +106,7 @@ hook_timer_irq(void)
     struct segoff_s newirq = SEGOFF(get_global_seg(), (u32)entry_timer_hook);
     if (CONFIG_VGA_ALLOCATE_EXTRA_STACK && GET_GLOBAL(ExtraStackSeg))
         newirq = SEGOFF(get_global_seg(), (u32)entry_timer_hook_extrastack);
-    dprintf(2, "Hooking hardware timer irq (old=%x new=%x)\n"
+    dprintf(1, "Hooking hardware timer irq (old=%x new=%x)\n"
             , oldirq.segoff, newirq.segoff);
     SET_VGA(Timer_Hook_Resume, oldirq);
     SET_IVT(0x08, newirq);
@@ -141,8 +141,8 @@ void VISIBLE16
 vga_post(struct bregs *regs)
 {
     serial_debug_preinit();
-    dprintf(2, "Start SeaVGABIOS (version %s)\n", VERSION);
-    dprintf(2, "VGABUILD: %s\n", BUILDINFO);
+    dprintf(1, "Start SeaVGABIOS (version %s)\n", VERSION);
+    dprintf(1, "VGABUILD: %s\n", BUILDINFO);
     debug_enter(regs, DEBUG_VGA_POST);
 
     if (CONFIG_VGA_PCI && !GET_GLOBAL(HaveRunInit)) {

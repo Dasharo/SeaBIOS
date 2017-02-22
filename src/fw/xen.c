@@ -74,7 +74,7 @@ void xen_preinit(void)
             code_mutable_preinit();
             DebugOutputPort = 0xe9;
             debug_banner();
-            dprintf(2, "\nFound Xen hypervisor signature at %x\n", base);
+            dprintf(1, "\nFound Xen hypervisor signature at %x\n", base);
             if ((eax - base) < 2)
                 panic("Insufficient Xen cpuid leaves. eax=%x at base %x\n",
                       eax, base);
@@ -110,14 +110,14 @@ void xen_hypercall_setup(void)
     if (!xen_hypercall_page)
         panic("unable to allocate Xen hypercall page\n");
 
-    dprintf(2, "Allocated Xen hypercall page at %lx\n", xen_hypercall_page);
+    dprintf(1, "Allocated Xen hypercall page at %lx\n", xen_hypercall_page);
     for ( i = 0; i < eax; i++ )
         wrmsr(ebx, xen_hypercall_page + (i << 12) + i);
 
     /* Print version information. */
     cpuid(xen_cpuid_base + 1, &eax, &ebx, &ecx, &edx);
     hypercall_xen_version(XENVER_extraversion, extraversion);
-    dprintf(2, "Detected Xen v%u.%u%s\n", eax >> 16, eax & 0xffff, extraversion);
+    dprintf(1, "Detected Xen v%u.%u%s\n", eax >> 16, eax & 0xffff, extraversion);
 }
 
 void xen_biostable_setup(void)
@@ -126,7 +126,7 @@ void xen_biostable_setup(void)
     void **tables = (void*)info->tables;
     int i;
 
-    dprintf(2, "xen: copy BIOS tables...\n");
+    dprintf(1, "xen: copy BIOS tables...\n");
     for (i=0; i<info->tables_nr; i++)
         copy_table(tables[i]);
 
@@ -140,7 +140,7 @@ void xen_ramsize_preinit(void)
     struct e820entry *e820 = (struct e820entry *)info->e820;
     validate_info(info);
 
-    dprintf(2, "xen: copy e820...\n");
+    dprintf(1, "xen: copy e820...\n");
 
     for (i = 0; i < info->e820_nr; i++) {
         struct e820entry *e = &e820[i];
