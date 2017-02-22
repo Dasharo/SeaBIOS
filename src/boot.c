@@ -494,6 +494,8 @@ interactive_bootmenu(void)
 
     char *bootmsg = romfile_loadfile("etc/boot-menu-message", NULL);
     int menukey = romfile_loadint("etc/boot-menu-key", 1);
+
+    if (ScreenAndDebug) printf("SeaBIOS (version %s)\n", VERSION);
     printf("%s", bootmsg && pxen == 1 ? bootmsg : "\nPress F10 key now for boot menu\n\n");
     free(bootmsg);
 
