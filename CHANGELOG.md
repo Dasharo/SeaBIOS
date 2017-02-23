@@ -4,12 +4,17 @@ Change log for PC Engines fork of SeaBIOS
 Fourth digit in release number means PC Engines patch.
 
 ## [Unreleased]
-## [rel-1.9.2.4] - 2016-01-23
-###Changed
+## [rel-1.10.0.1] - 2017-02-23
+### Changed
+- rebased to 1.10.0 mainline
+- added SgaBios option rom enable/disable sortbootorder config handling
+
+## [rel-1.9.2.4] - 2017-01-23
+### Changed
 - change debug output of version string to show, when using the sgabios and
   also serial output
 
-## [rel-1.9.2.3] - 2016-01-03
+## [rel-1.9.2.3] - 2017-01-03
 ### Fixed
 - fix the issue that 2 banner messages with version are shown on
   default debug level
@@ -31,7 +36,8 @@ Fourth digit in release number means PC Engines patch.
 ### Fixed
 - prevented from printing character multiple times
 
-[Unreleased]: https://github.com/pcengines/seabios/compare/rel-1.9.2.4...coreboot-4.0.x
+[Unreleased]: https://github.com/pcengines/seabios/compare/rel-1.10.0.1...coreboot-4.0.x
+[rel-1.10.0.1]: https://github.com/pcengines/seabios/compare/rel-1.9.2.4...rel-1.10.0.1
 [rel-1.9.2.4]: https://github.com/pcengines/seabios/compare/rel-1.9.2.3...rel-1.9.2.4
 [rel-1.9.2.3]: https://github.com/pcengines/seabios/compare/rel-1.9.2.2...rel-1.9.2.3
 [rel-1.9.2.2]: https://github.com/pcengines/seabios/compare/rel-1.9.2.1...rel-1.9.2.2
