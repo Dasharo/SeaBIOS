@@ -117,6 +117,19 @@ int find_pxen(void)
     return -1;
 }
 
+// search for 'enable/disable sgabios' bit value
+// if it doesn't exist - set to disabled
+int find_sgaen(void)
+{
+     int i;
+     for (i=0; i < BootorderCount; i++)
+     {
+         if (glob_prefix("sgaen1", Bootorder[i]))
+             return 1;
+     }
+     return 0;
+}
+
 // search for 'boot from usb' bit value
 // if it doesn't exist - set to enabled
 static int find_usben(void)
