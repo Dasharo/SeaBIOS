@@ -62,12 +62,12 @@ e820_type_name(u32 type)
 static void
 dump_map(void)
 {
-    dprintf(2, "e820 map has %d items:\n", e820_count);
+    dprintf(1, "e820 map has %d items:\n", e820_count);
     int i;
     for (i=0; i<e820_count; i++) {
         struct e820entry *e = &e820_list[i];
         u64 e_end = e->start + e->size;
-        dprintf(2, "  %d: %016llx - %016llx = %d %s\n", i
+        dprintf(1, "  %d: %016llx - %016llx = %d %s\n", i
                 , e->start, e_end, e->type, e820_type_name(e->type));
     }
 }

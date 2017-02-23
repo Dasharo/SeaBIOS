@@ -24,7 +24,6 @@
 
 static int EnforceChecksum, S3ResumeVga, RunPCIroms;
 
-
 /****************************************************************
  * Helper functions
  ****************************************************************/
@@ -34,7 +33,7 @@ static void
 __callrom(struct rom_header *rom, u16 offset, u16 bdf)
 {
     u16 seg = FLATPTR_TO_SEG(rom);
-    dprintf(2, "Running option rom at %04x:%04x\n", seg, offset);
+    dprintf(1, "Running option rom at %04x:%04x\n", seg, offset);
 
     struct bregs br;
     memset(&br, 0, sizeof(br));
@@ -77,7 +76,7 @@ is_valid_rom(struct rom_header *rom)
     u32 len = rom->size * 512;
     u8 sum = checksum(rom, len);
     if (sum != 0) {
-        dprintf(2, "Found option rom with bad checksum: loc=%p len=%d sum=%x\n"
+        dprintf(1, "Found option rom with bad checksum: loc=%p len=%d sum=%x\n"
                 , rom, len, sum);
         if (EnforceChecksum)
             return 0;
@@ -189,12 +188,15 @@ static void
 run_file_roms(const char *prefix, int isvga, u64 *sources)
 {
     int pxen = find_pxen();
+    int sgaen = find_sgaen();
     struct romfile_s *file = NULL;
     for (;;) {
         file = romfile_findprefix(prefix, file);
         if (!file)
             break;
-        if (strcmp(file->name, "genroms/pxe.rom") || (pxen == 1))
+        if (((strcmp(file->name, "genroms/pxe.rom")     == 0) && (pxen == 1)) ||
+            ((strcmp(file->name, "vgaroms/sgabios.bin") == 0) && (sgaen == 1))
+           )
         {
             struct rom_header *rom = deploy_romfile(file);
             if (rom) {
@@ -204,6 +206,7 @@ run_file_roms(const char *prefix, int isvga, u64 *sources)
         }
     }
 }
+
 
 /****************************************************************
  * PCI roms
@@ -345,7 +348,7 @@ optionrom_setup(void)
     if (! CONFIG_OPTIONROMS)
         return;
 
-    dprintf(2, "Scan for option roms\n");
+    dprintf(1, "Scan for option roms\n");
     u64 sources[(BUILD_BIOS_ADDR - BUILD_ROM_START) / OPTION_ROM_ALIGN];
     memset(sources, 0, sizeof(sources));
     u32 post_vga = rom_get_last();
@@ -410,13 +413,17 @@ vgarom_setup(void)
     if (! CONFIG_OPTIONROMS)
         return;
 
-    dprintf(2, "Scan for VGA option rom\n");
+    dprintf(1, "Scan for VGA option rom\n");
 
     // Load some config settings that impact VGA.
     EnforceChecksum = romfile_loadint("etc/optionroms-checksum", 1);
     S3ResumeVga = romfile_loadint("etc/s3-resume-vga-init", CONFIG_QEMU);
     RunPCIroms = romfile_loadint("etc/pci-optionrom-exec", 2);
-    ScreenAndDebug = romfile_loadint("etc/screen-and-debug", 1);
+    if (find_sgaen()) {
+        ScreenAndDebug = 0;
+    } else {
+        ScreenAndDebug = romfile_loadint("etc/screen-and-debug", 1);
+    }
 
     // Clear option rom memory
     memset((void*)BUILD_ROM_START, 0, rom_get_max() - BUILD_ROM_START);

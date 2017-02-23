@@ -12,8 +12,14 @@
 #include "output.h" // dprintf
 #include "std/vbe.h" // struct vbe_info
 #include "string.h" // memset_far
-#include "vgabios.h" // handle_104f
+#include "vgabios.h" // get_current_mode
 #include "vgahw.h" // vgahw_set_mode
+#include "vgautil.h" // handle_104f
+
+#define VBE_OEM_STRING "SeaBIOS VBE(C) 2011"
+#define VBE_VENDOR_STRING "SeaBIOS Developers"
+#define VBE_PRODUCT_STRING "SeaBIOS VBE Adapter"
+#define VBE_REVISION_STRING "Rev. 1"
 
 u32 VBE_total_memory VAR16 = 256 * 1024;
 u32 VBE_capabilities VAR16;
@@ -73,7 +79,7 @@ vbe_104f01(struct bregs *regs)
     struct vbe_mode_info *info = (void*)(regs->di+0);
     u16 mode = regs->cx;
 
-    dprintf(2, "VBE mode info request: %x\n", mode);
+    dprintf(1, "VBE mode info request: %x\n", mode);
 
     struct vgamode_s *vmode_g = vgahw_find_mode(mode & ~MF_VBEFLAGS);
     if (! vmode_g) {
@@ -204,7 +210,7 @@ vbe_104f01(struct bregs *regs)
 static void
 vbe_104f02(struct bregs *regs)
 {
-    dprintf(2, "VBE mode set: %x\n", regs->bx);
+    dprintf(1, "VBE mode set: %x\n", regs->bx);
 
     int mode = regs->bx & ~MF_VBEFLAGS;
     int flags = regs->bx & MF_VBEFLAGS;
@@ -218,7 +224,7 @@ static void
 vbe_104f03(struct bregs *regs)
 {
     regs->bx = GET_BDA_EXT(vbe_mode);
-    dprintf(2, "VBE current mode=%x\n", regs->bx);
+    dprintf(1, "VBE current mode=%x\n", regs->bx);
     regs->ax = 0x004f;
 }
 

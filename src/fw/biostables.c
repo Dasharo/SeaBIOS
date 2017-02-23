@@ -38,7 +38,7 @@ copy_pir(void *pos)
         warn_noalloc();
         return;
     }
-    dprintf(2, "Copying PIR from %p to %p\n", pos, newpos);
+    dprintf(1, "Copying PIR from %p to %p\n", pos, newpos);
     memcpy(newpos, pos, p->size);
     PirAddr = newpos;
 }
@@ -68,7 +68,7 @@ copy_mptable(void *pos)
         warn_noalloc();
         return;
     }
-    dprintf(2, "Copying MPTABLE from %p/%x to %p\n", pos, p->physaddr, newpos);
+    dprintf(1, "Copying MPTABLE from %p/%x to %p\n", pos, p->physaddr, newpos);
     memcpy(newpos, pos, length);
     newpos->physaddr = (u32)newpos + length;
     newpos->checksum -= checksum(newpos, sizeof(*newpos));
@@ -116,7 +116,7 @@ copy_acpi_rsdp(void *pos)
         warn_noalloc();
         return;
     }
-    dprintf(2, "Copying ACPI RSDP from %p to %p\n", pos, newpos);
+    dprintf(1, "Copying ACPI RSDP from %p to %p\n", pos, newpos);
     memcpy(newpos, pos, length);
     RsdpAddr = newpos;
 }
@@ -134,8 +134,8 @@ void *find_acpi_rsdp(void)
     return NULL;
 }
 
-static struct fadt_descriptor_rev1 *
-find_fadt(void)
+void *
+find_acpi_table(u32 signature)
 {
     dprintf(4, "rsdp=%p\n", RsdpAddr);
     if (!RsdpAddr || RsdpAddr->signature != RSDP_SIGNATURE)
@@ -147,20 +147,20 @@ find_fadt(void)
     void *end = (void*)rsdt + rsdt->length;
     int i;
     for (i=0; (void*)&rsdt->table_offset_entry[i] < end; i++) {
-        struct fadt_descriptor_rev1 *fadt = (void*)rsdt->table_offset_entry[i];
-        if (!fadt || fadt->signature != FACP_SIGNATURE)
+        struct acpi_table_header *tbl = (void*)rsdt->table_offset_entry[i];
+        if (!tbl || tbl->signature != signature)
             continue;
-        dprintf(4, "fadt=%p\n", fadt);
-        return fadt;
+        dprintf(4, "table(%x)=%p\n", signature, tbl);
+        return tbl;
     }
-    dprintf(4, "no fadt found\n");
+    dprintf(4, "no table %x found\n", signature);
     return NULL;
 }
 
 u32
 find_resume_vector(void)
 {
-    struct fadt_descriptor_rev1 *fadt = find_fadt();
+    struct fadt_descriptor_rev1 *fadt = find_acpi_table(FACP_SIGNATURE);
     if (!fadt)
         return 0;
     struct facs_descriptor_rev1 *facs = (void*)fadt->firmware_ctrl;
@@ -188,7 +188,7 @@ acpi_reboot(void)
 
     u64 addr = le64_to_cpu(acpi_reset_reg.address);
 
-    dprintf(2, "ACPI hard reset %d:%llx (%x)\n",
+    dprintf(1, "ACPI hard reset %d:%llx (%x)\n",
             acpi_reset_reg.address_space_id, addr, acpi_reset_val);
 
     switch (acpi_reset_reg.address_space_id) {
@@ -218,7 +218,7 @@ acpi_set_reset_reg(struct acpi_20_generic_address *reg, u8 val)
 void
 find_acpi_features(void)
 {
-    struct fadt_descriptor_rev1 *fadt = find_fadt();
+    struct fadt_descriptor_rev1 *fadt = find_acpi_table(FACP_SIGNATURE);
     if (!fadt)
         return;
     u32 pm_tmr = le32_to_cpu(fadt->pm_tmr_blk);
@@ -289,7 +289,7 @@ copy_smbios(void *pos)
         warn_noalloc();
         return;
     }
-    dprintf(2, "Copying SMBIOS entry point from %p to %p\n", pos, newpos);
+    dprintf(1, "Copying SMBIOS entry point from %p to %p\n", pos, newpos);
     memcpy(newpos, pos, p->length);
     SMBiosAddr = newpos;
 }

@@ -65,12 +65,12 @@ multiboot_init(void)
     struct multiboot_info *mbi;
     if (!CONFIG_MULTIBOOT)
         return;
-    dprintf(2, "multiboot: eax=%x, ebx=%x\n", entry_elf_eax, entry_elf_ebx);
+    dprintf(1, "multiboot: eax=%x, ebx=%x\n", entry_elf_eax, entry_elf_ebx);
     if (entry_elf_eax != MULTIBOOT_BOOTLOADER_MAGIC)
         return;
     mbi = (void *)entry_elf_ebx;
-    dprintf(2, "mbptr=%p\n", mbi);
-    dprintf(2, "flags=0x%x, mods=0x%x, mods_c=%d\n", mbi->flags, mbi->mods_addr,
+    dprintf(1, "mbptr=%p\n", mbi);
+    dprintf(1, "flags=0x%x, mods=0x%x, mods_c=%d\n", mbi->flags, mbi->mods_addr,
             mbi->mods_count);
     if (!(mbi->flags & MULTIBOOT_INFO_MODS))
         return;
@@ -89,13 +89,13 @@ multiboot_init(void)
             return;
         }
         memset(cfile, 0, sizeof(*cfile));
-        dprintf(2, "module %s, size 0x%x\n", (char *)mod[i].cmdline, len);
+        dprintf(1, "module %s, size 0x%x\n", (char *)mod[i].cmdline, len);
         if (!extract_filename(cfile->file.name, (char *)mod[i].cmdline,
                               sizeof(cfile->file.name))) {
             free(cfile);
             continue;
         }
-        dprintf(2, "assigned file name <%s>\n", cfile->file.name);
+        dprintf(1, "assigned file name <%s>\n", cfile->file.name);
         cfile->file.size = len;
         copy = malloc_tmp(len);
         if (!copy) {

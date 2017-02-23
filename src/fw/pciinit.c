@@ -158,7 +158,7 @@ static void piix_isa_bridge_setup(struct pci_device *pci, void *arg)
     }
     outb(elcr[0], PIIX_PORT_ELCR1);
     outb(elcr[1], PIIX_PORT_ELCR2);
-    dprintf(2, "PIIX3/PIIX4 init: elcr=%02x %02x\n", elcr[0], elcr[1]);
+    dprintf(1, "PIIX3/PIIX4 init: elcr=%02x %02x\n", elcr[0], elcr[1]);
 }
 
 static void mch_isa_lpc_setup(u16 bdf)
@@ -202,7 +202,7 @@ static void mch_isa_bridge_setup(struct pci_device *dev, void *arg)
     }
     outb(elcr[0], ICH9_LPC_PORT_ELCR1);
     outb(elcr[1], ICH9_LPC_PORT_ELCR2);
-    dprintf(2, "Q35 LPC init: elcr=%02x %02x\n", elcr[0], elcr[1]);
+    dprintf(1, "Q35 LPC init: elcr=%02x %02x\n", elcr[0], elcr[1]);
 
     ICH9LpcBDF = bdf;
 
@@ -309,7 +309,7 @@ static void intel_igd_setup(struct pci_device *dev, void *arg)
 
         pci_config_writel(bdf, 0xFC, cpu_to_le32((u32)addr));
 
-        dprintf(2, "Intel IGD OpRegion enabled at 0x%08x, size %dKB, dev "
+        dprintf(1, "Intel IGD OpRegion enabled at 0x%08x, size %dKB, dev "
                 "%02x:%02x.%x\n", (u32)addr, opregion->size >> 10,
                 pci_bdf_to_bus(bdf), pci_bdf_to_dev(bdf), pci_bdf_to_fn(bdf));
     }
@@ -326,7 +326,7 @@ static void intel_igd_setup(struct pci_device *dev, void *arg)
 
         pci_config_writel(bdf, 0x5C, cpu_to_le32((u32)addr));
 
-        dprintf(2, "Intel IGD BDSM enabled at 0x%08x, size %lldMB, dev "
+        dprintf(1, "Intel IGD BDSM enabled at 0x%08x, size %lldMB, dev "
                 "00:02.0\n", (u32)addr, bdsm_size >> 20);
     }
 }
@@ -399,7 +399,7 @@ void pci_resume(void)
 
 static void pci_bios_init_device(struct pci_device *pci)
 {
-    dprintf(2, "PCI: init bdf=%pP id=%04x:%04x\n"
+    dprintf(1, "PCI: init bdf=%pP id=%04x:%04x\n"
             , pci, pci->vendor, pci->device);
 
     /* map the interrupt */
@@ -433,7 +433,7 @@ static void pci_enable_default_vga(void)
 
     foreachpci(pci) {
         if (is_pci_vga(pci)) {
-            dprintf(2, "PCI: Using %pP for primary VGA\n", pci);
+            dprintf(1, "PCI: Using %pP for primary VGA\n", pci);
             return;
         }
     }
@@ -444,7 +444,7 @@ static void pci_enable_default_vga(void)
         return;
     }
 
-    dprintf(2, "PCI: Enabling %pP for primary VGA\n", pci);
+    dprintf(1, "PCI: Enabling %pP for primary VGA\n", pci);
 
     pci_config_maskw(pci->bdf, PCI_COMMAND, 0,
                      PCI_COMMAND_IO | PCI_COMMAND_MEMORY);
@@ -452,7 +452,7 @@ static void pci_enable_default_vga(void)
     while (pci->parent) {
         pci = pci->parent;
 
-        dprintf(2, "PCI: Setting VGA enable on bridge %pP\n", pci);
+        dprintf(1, "PCI: Setting VGA enable on bridge %pP\n", pci);
 
         pci_config_maskw(pci->bdf, PCI_BRIDGE_CONTROL, 0, PCI_BRIDGE_CTL_VGA);
         pci_config_maskw(pci->bdf, PCI_COMMAND, 0,
@@ -533,7 +533,7 @@ pci_bios_init_bus_rec(int bus, u8 *pci_bus)
     int bdf;
     u16 class;
 
-    dprintf(2, "PCI: %s bus = 0x%x\n", __func__, bus);
+    dprintf(1, "PCI: %s bus = 0x%x\n", __func__, bus);
 
     /* prevent accidental access to unintended devices */
     foreachbdf(bdf, bus) {
@@ -549,25 +549,25 @@ pci_bios_init_bus_rec(int bus, u8 *pci_bus)
         if (class != PCI_CLASS_BRIDGE_PCI) {
             continue;
         }
-        dprintf(2, "PCI: %s bdf = 0x%x\n", __func__, bdf);
+        dprintf(1, "PCI: %s bdf = 0x%x\n", __func__, bdf);
 
         u8 pribus = pci_config_readb(bdf, PCI_PRIMARY_BUS);
         if (pribus != bus) {
-            dprintf(2, "PCI: primary bus = 0x%x -> 0x%x\n", pribus, bus);
+            dprintf(1, "PCI: primary bus = 0x%x -> 0x%x\n", pribus, bus);
             pci_config_writeb(bdf, PCI_PRIMARY_BUS, bus);
         } else {
-            dprintf(2, "PCI: primary bus = 0x%x\n", pribus);
+            dprintf(1, "PCI: primary bus = 0x%x\n", pribus);
         }
 
         u8 secbus = pci_config_readb(bdf, PCI_SECONDARY_BUS);
         (*pci_bus)++;
         if (*pci_bus != secbus) {
-            dprintf(2, "PCI: secondary bus = 0x%x -> 0x%x\n",
+            dprintf(1, "PCI: secondary bus = 0x%x -> 0x%x\n",
                     secbus, *pci_bus);
             secbus = *pci_bus;
             pci_config_writeb(bdf, PCI_SECONDARY_BUS, secbus);
         } else {
-            dprintf(2, "PCI: secondary bus = 0x%x\n", secbus);
+            dprintf(1, "PCI: secondary bus = 0x%x\n", secbus);
         }
 
         /* set to max for access to all subordinate buses.
@@ -578,11 +578,11 @@ pci_bios_init_bus_rec(int bus, u8 *pci_bus)
         pci_bios_init_bus_rec(secbus, pci_bus);
 
         if (subbus != *pci_bus) {
-            dprintf(2, "PCI: subordinate bus = 0x%x -> 0x%x\n",
+            dprintf(1, "PCI: subordinate bus = 0x%x -> 0x%x\n",
                     subbus, *pci_bus);
             subbus = *pci_bus;
         } else {
-            dprintf(2, "PCI: subordinate bus = 0x%x\n", subbus);
+            dprintf(1, "PCI: subordinate bus = 0x%x\n", subbus);
         }
         pci_config_writeb(bdf, PCI_SUBORDINATE_BUS, subbus);
     }
@@ -794,7 +794,7 @@ static int pci_bridge_has_region(struct pci_device *pci,
 
 static int pci_bios_check_devices(struct pci_bus *busses)
 {
-    dprintf(2, "PCI: check devices\n");
+    dprintf(1, "PCI: check devices\n");
 
     // Calculate resources needed for regular (non-bus) devices.
     struct pci_device *pci;
@@ -865,7 +865,7 @@ static int pci_bios_check_devices(struct pci_bus *busses)
                 parent, s->bus_dev, -1, size, align, type, is64);
             if (!entry)
                 return -1;
-            dprintf(2, "PCI: secondary bus %d size %08llx type %s\n",
+            dprintf(1, "PCI: secondary bus %d size %08llx type %s\n",
                       entry->dev->secondary_bus, size,
                       region_type_name[entry->type]);
         }
@@ -904,7 +904,7 @@ static int pci_bios_init_root_regions_io(struct pci_bus *bus)
         /* not enouth io address space -> error out */
         return -1;
     }
-    dprintf(2, "PCI: IO: %4llx - %4llx\n", r_io->base, r_io->base + sum - 1);
+    dprintf(1, "PCI: IO: %4llx - %4llx\n", r_io->base, r_io->base + sum - 1);
     return 0;
 }
 
@@ -940,7 +940,7 @@ static void
 pci_region_map_one_entry(struct pci_region_entry *entry, u64 addr)
 {
     if (entry->bar >= 0) {
-        dprintf(2, "PCI: map device bdf=%pP"
+        dprintf(1, "PCI: map device bdf=%pP"
                 "  bar %d, addr %08llx, size %08llx [%s]\n",
                 entry->dev,
                 entry->bar, addr, entry->size, region_type_name[entry->type]);
@@ -990,7 +990,7 @@ static void pci_bios_map_devices(struct pci_bus *busses)
     if (pci_bios_init_root_regions_io(busses))
         panic("PCI: out of I/O address space\n");
 
-    dprintf(2, "PCI: 32: %016llx - %016llx\n", pcimem_start, pcimem_end);
+    dprintf(1, "PCI: 32: %016llx - %016llx\n", pcimem_start, pcimem_end);
     if (pci_bios_init_root_regions_mem(busses)) {
         struct pci_region r64_mem, r64_pref;
         r64_mem.list.first = NULL;
@@ -1019,7 +1019,7 @@ static void pci_bios_map_devices(struct pci_bus *busses)
         pcimem64_start = r64_mem.base;
         pcimem64_end = r64_pref.base + sum_pref;
         pcimem64_end = ALIGN(pcimem64_end, (1LL<<30));    // 1G hugepage
-        dprintf(2, "PCI: 64: %016llx - %016llx\n", pcimem64_start, pcimem64_end);
+        dprintf(1, "PCI: 64: %016llx - %016llx\n", pcimem64_start, pcimem64_end);
 
         pci_region_map_entries(busses, &r64_mem);
         pci_region_map_entries(busses, &r64_pref);
@@ -1049,18 +1049,19 @@ pci_setup(void)
 
     dprintf(3, "pci setup\n");
 
-    dprintf(2, "=== PCI bus & bridge init ===\n");
+    dprintf(1, "=== PCI bus & bridge init ===\n");
     if (pci_probe_host() != 0) {
         return;
     }
     pci_bios_init_bus();
 
+    dprintf(1, "=== PCI device probing ===\n");
     pci_probe_devices();
 
     pcimem_start = RamSize;
     pci_bios_init_platform();
 
-    dprintf(2, "=== PCI new allocation pass #1 ===\n");
+    dprintf(1, "=== PCI new allocation pass #1 ===\n");
     struct pci_bus *busses = malloc_tmp(sizeof(*busses) * (MaxPCIBus + 1));
     if (!busses) {
         warn_noalloc();
@@ -1070,7 +1071,7 @@ pci_setup(void)
     if (pci_bios_check_devices(busses))
         return;
 
-    dprintf(2, "=== PCI new allocation pass #2 ===\n");
+    dprintf(1, "=== PCI new allocation pass #2 ===\n");
     pci_bios_map_devices(busses);
 
     pci_bios_init_devices();

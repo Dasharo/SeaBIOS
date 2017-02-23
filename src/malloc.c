@@ -173,7 +173,7 @@ relocate_ebda(u32 newebda, u32 oldebda, u8 ebda_size)
     memmove((void*)newebda, (void*)oldebda, ebda_size * 1024);
 
     // Update indexes
-    dprintf(2, "ebda moved from %x to %x\n", oldebda, newebda);
+    dprintf(1, "ebda moved from %x to %x\n", oldebda, newebda);
     SET_BDA(mem_size_kb, newebda / 1024);
     SET_BDA(ebda_seg, FLATPTR_TO_SEG(newebda));
     return 0;
@@ -546,7 +546,7 @@ malloc_prepboot(void)
     struct allocinfo_s *info = alloc_find_lowest(&ZoneFSeg);
     u32 size = info->range_end - info->range_start;
     memset(memremap(info->range_start, size), 0, size);
-    dprintf(2, "Space available for UMB: %x-%x, %x-%x\n"
+    dprintf(1, "Space available for UMB: %x-%x, %x-%x\n"
             , RomEnd, base, info->range_start, info->range_end);
 
     // Give back unused high ram.
@@ -554,7 +554,7 @@ malloc_prepboot(void)
     if (info) {
         u32 giveback = ALIGN_DOWN(info->range_end-info->range_start, PAGE_SIZE);
         e820_add(info->range_start, giveback, E820_RAM);
-        dprintf(2, "Returned %d bytes of ZoneHigh\n", giveback);
+        dprintf(1, "Returned %d bytes of ZoneHigh\n", giveback);
     }
 
     calcRamSize();

@@ -20,6 +20,7 @@
 #include "hw/usb-uas.h" // uas_process_op
 #include "hw/virtio-blk.h" // process_virtio_blk_op
 #include "hw/virtio-scsi.h" // virtio_scsi_process_op
+#include "hw/nvme.h" // nvme_process_op
 #include "malloc.h" // malloc_low
 #include "output.h" // dprintf
 #include "stacks.h" // call32
@@ -162,7 +163,7 @@ setup_translation(struct drive_s *drive)
     // clip to 1024 cylinders in lchs
     if (cylinders > 1024)
         cylinders = 1024;
-    dprintf(2, "drive %p: PCHS=%u/%d/%d translation=%s LCHS=%d/%d/%d s=%u\n"
+    dprintf(1, "drive %p: PCHS=%u/%d/%d translation=%s LCHS=%d/%d/%d s=%u\n"
             , drive
             , drive->pchs.cylinder, drive->pchs.head, drive->pchs.sector
             , desc
@@ -502,6 +503,7 @@ block_setup(void)
     megasas_setup();
     pvscsi_setup();
     mpt_scsi_setup();
+    nvme_setup();
 }
 
 // Fallback handler for command requests not implemented by drivers
@@ -571,6 +573,8 @@ process_op_32(struct disk_op_s *op)
         return virtio_scsi_process_op(op);
     case DTYPE_PVSCSI:
         return pvscsi_process_op(op);
+    case DTYPE_NVME:
+        return nvme_process_op(op);
     default:
         return process_op_both(op);
     }

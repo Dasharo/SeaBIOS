@@ -17,6 +17,7 @@
 #include "string.h" // memset
 #include "util.h" // dma_setup
 #include "tcgbios.h" // tpm_s3_resume
+#include "fw/romfile_loader.h" // romfile_fw_cfg_resume
 
 // Handler for post calls that look like a resume.
 void VISIBLE16
@@ -25,7 +26,7 @@ handle_resume(void)
     ASSERT16();
     int status = rtc_read(CMOS_RESET_CODE);
     rtc_write(CMOS_RESET_CODE, 0);
-    dprintf(2, "In resume (status=%d)\n", status);
+    dprintf(1, "In resume (status=%d)\n", status);
 
     dma_setup();
 
@@ -97,6 +98,7 @@ s3_resume(void)
 
     pic_setup();
     smm_setup();
+    smp_resume();
 
     pci_resume();
 
@@ -104,12 +106,15 @@ s3_resume(void)
     tpm_s3_resume();
     s3_resume_vga();
 
+    /* Replay any fw_cfg entries that go back to the host */
+    romfile_fw_cfg_resume();
+
     make_bios_readonly();
 
     // Invoke the resume vector.
     struct bregs br;
     memset(&br, 0, sizeof(br));
-    dprintf(2, "Jump to resume vector (%x)\n", s3_resume_vector);
+    dprintf(1, "Jump to resume vector (%x)\n", s3_resume_vector);
     br.code = FLATPTR_TO_SEGOFF((void*)s3_resume_vector);
     farcall16big(&br);
 }
@@ -118,7 +123,7 @@ s3_resume(void)
 static void
 tryReboot(void)
 {
-    dprintf(2, "Attempting a hard reboot\n");
+    dprintf(1, "Attempting a hard reboot\n");
 
     // Setup for reset on qemu.
     qemu_prep_reset();
@@ -142,7 +147,7 @@ void VISIBLE32FLAT
 handle_resume32(int status)
 {
     ASSERT32FLAT();
-    dprintf(2, "In 32bit resume\n");
+    dprintf(1, "In 32bit resume\n");
 
     if (status == 0xfe)
         s3_resume();

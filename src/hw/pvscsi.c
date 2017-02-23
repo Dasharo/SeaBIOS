@@ -167,18 +167,18 @@ pvscsi_init_rings(void *iobase, struct pvscsi_ring_dsc_s **ring_dsc)
 {
     struct PVSCSICmdDescSetupRings cmd = {0,};
 
-    struct pvscsi_ring_dsc_s *dsc = memalign_low(sizeof(*dsc), PAGE_SIZE);
+    struct pvscsi_ring_dsc_s *dsc = memalign_high(PAGE_SIZE, sizeof(*dsc));
     if (!dsc) {
         warn_noalloc();
         return;
     }
 
     dsc->ring_state =
-        (struct PVSCSIRingsState *)memalign_low(PAGE_SIZE, PAGE_SIZE);
+        (struct PVSCSIRingsState *)memalign_high(PAGE_SIZE, PAGE_SIZE);
     dsc->ring_reqs =
-        (struct PVSCSIRingReqDesc *)memalign_low(PAGE_SIZE, PAGE_SIZE);
+        (struct PVSCSIRingReqDesc *)memalign_high(PAGE_SIZE, PAGE_SIZE);
     dsc->ring_cmps =
-        (struct PVSCSIRingCmpDesc *)memalign_low(PAGE_SIZE, PAGE_SIZE);
+        (struct PVSCSIRingCmpDesc *)memalign_high(PAGE_SIZE, PAGE_SIZE);
     if (!dsc->ring_state || !dsc->ring_reqs || !dsc->ring_cmps) {
         warn_noalloc();
         return;
@@ -303,7 +303,7 @@ init_pvscsi(void *data)
         return;
     pci_enable_busmaster(pci);
 
-    dprintf(2, "found pvscsi at %pP, io @ %p\n", pci, iobase);
+    dprintf(1, "found pvscsi at %pP, io @ %p\n", pci, iobase);
 
     pvscsi_write_cmd_desc(iobase, PVSCSI_CMD_ADAPTER_RESET, NULL, 0);
 

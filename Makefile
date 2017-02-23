@@ -44,7 +44,7 @@ SRC32FLAT=$(SRCBOTH) post.c e820map.c malloc.c romfile.c x86.c optionroms.c \
     fw/paravirt.c fw/shadow.c fw/pciinit.c fw/smm.c fw/smp.c fw/mtrr.c fw/xen.c \
     fw/acpi.c fw/mptable.c fw/pirtable.c fw/smbios.c fw/romfile_loader.c \
     hw/virtio-ring.c hw/virtio-pci.c hw/virtio-blk.c hw/virtio-scsi.c \
-    hw/tpm_drivers.c
+    hw/tpm_drivers.c hw/nvme.c
 SRC32SEG=string.c output.c pcibios.c apm.c stacks.c hw/pci.c hw/serialio.c
 DIRS=src src/hw src/fw vgasrc
 
@@ -64,6 +64,7 @@ COMMONCFLAGS := -I$(OUT) -Isrc -Os -MD -g \
     -freg-struct-return -ffreestanding -fno-delete-null-pointer-checks \
     -ffunction-sections -fdata-sections -fno-common -fno-merge-constants
 COMMONCFLAGS += $(call cc-option,$(CC),-nopie,)
+COMMONCFLAGS += $(call cc-option,$(CC),-fno-pie,)
 COMMONCFLAGS += $(call cc-option,$(CC),-fno-stack-protector,)
 COMMONCFLAGS += $(call cc-option,$(CC),-fno-stack-protector-all,)
 COMMONCFLAGS += $(call cc-option,$(CC),-fstack-check=no,)
@@ -208,7 +209,7 @@ $(OUT)bios.bin.elf: $(OUT)rom.o $(OUT)bios.bin.prep
 
 # VGA src files
 SRCVGA=src/output.c src/string.c src/hw/pci.c src/hw/serialio.c \
-    vgasrc/vgainit.c vgasrc/vgabios.c vgasrc/vgafb.c \
+    vgasrc/vgainit.c vgasrc/vgabios.c vgasrc/vgafb.c vgasrc/swcursor.c \
     vgasrc/vgafonts.c vgasrc/vbe.c \
     vgasrc/stdvga.c vgasrc/stdvgamodes.c vgasrc/stdvgaio.c \
     vgasrc/clext.c vgasrc/bochsvga.c vgasrc/geodevga.c \
@@ -282,4 +283,4 @@ clean:
 distclean: clean
 	$(Q)rm -f .config .config.old
 
--include $(patsubst %,$(OUT)%/*.d,$(DIRS))
+-include $(OUT)*.d $(patsubst %,$(OUT)%/*.d,$(DIRS))

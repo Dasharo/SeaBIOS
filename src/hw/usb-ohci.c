@@ -282,7 +282,7 @@ ohci_controller_setup(struct pci_device *pci)
     cntl->usb.type = USB_TYPE_OHCI;
     cntl->regs = regs;
 
-    dprintf(2, "OHCI init on dev %pP (regs=%p)\n", pci, cntl->regs);
+    dprintf(1, "OHCI init on dev %pP (regs=%p)\n", pci, cntl->regs);
 
     pci_enable_busmaster(pci);
 
@@ -446,7 +446,7 @@ wait_ed(struct ohci_ed *ed, int timeout)
             return 0;
         if (timer_check(end)) {
             warn_timeout();
-            dprintf(2, "ohci ed info=%x tail=%x head=%x next=%x\n"
+            dprintf(1, "ohci ed info=%x tail=%x head=%x next=%x\n"
                     , ed->hwINFO, ed->hwTailP, ed->hwHeadP, ed->hwNextED);
             return -1;
         }

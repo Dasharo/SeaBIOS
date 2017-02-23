@@ -32,7 +32,7 @@ void
 debug_banner(void)
 {
     dprintf(1, "SeaBIOS (version %s)\n", VERSION);
-    dprintf(3, "BUILD: %s\n", BUILDINFO);
+    dprintf(1, "BUILD: %s\n", BUILDINFO);
 }
 
 // Write a character to debug port(s).
@@ -465,13 +465,13 @@ static void
 dump_regs(struct bregs *regs)
 {
     if (!regs) {
-        dprintf(2, "  NULL\n");
+        dprintf(1, "  NULL\n");
         return;
     }
-    dprintf(2, "   a=%08x  b=%08x  c=%08x  d=%08x ds=%04x es=%04x ss=%04x\n"
+    dprintf(1, "   a=%08x  b=%08x  c=%08x  d=%08x ds=%04x es=%04x ss=%04x\n"
             , regs->eax, regs->ebx, regs->ecx, regs->edx
             , regs->ds, regs->es, GET_SEG(SS));
-    dprintf(2, "  si=%08x di=%08x bp=%08x sp=%08x cs=%04x ip=%04x  f=%04x\n"
+    dprintf(1, "  si=%08x di=%08x bp=%08x sp=%08x cs=%04x ip=%04x  f=%04x\n"
             , regs->esi, regs->edi, regs->ebp, (u32)&regs[1]
             , regs->code.seg, regs->code.offset, regs->flags);
 }
@@ -489,7 +489,7 @@ __debug_isr(const char *fname)
 void
 __debug_enter(struct bregs *regs, const char *fname)
 {
-    dprintf(2, "enter %s:\n", fname);
+    dprintf(1, "enter %s:\n", fname);
     dump_regs(regs);
 }
 

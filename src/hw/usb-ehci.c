@@ -315,7 +315,7 @@ ehci_controller_setup(struct pci_device *pci)
         cntl->regs->ctrldssegment = 0;
     PendingEHCI++;
 
-    dprintf(2, "EHCI init on dev %pP (regs=%p)\n", pci, cntl->regs);
+    dprintf(1, "EHCI init on dev %pP (regs=%p)\n", pci, cntl->regs);
 
     pci_enable_busmaster(pci);
 
@@ -514,7 +514,7 @@ ehci_wait_td(struct ehci_pipe *pipe, struct ehci_qtd *td, u32 end)
             u32 tok = GET_LOWFLAT(pipe->qh.token);
             u32 next = GET_LOWFLAT(pipe->qh.qtd_next);
             warn_timeout();
-            dprintf(2, "ehci pipe=%p cur=%08x tok=%08x next=%x td=%p status=%x\n"
+            dprintf(1, "ehci pipe=%p cur=%08x tok=%08x next=%x td=%p status=%x\n"
                     , pipe, cur, tok, next, td, status);
             ehci_reset_pipe(pipe);
             struct usb_ehci_s *cntl = container_of(

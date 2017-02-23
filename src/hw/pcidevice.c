@@ -80,7 +80,7 @@ pci_probe_devices(void)
                     , dev, dev->vendor, dev->device, dev->class);
         }
     }
-    dprintf(2, "Found %d PCI devices (max PCI bus is %02x)\n", count, MaxPCIBus);
+    dprintf(1, "Found %d PCI devices (max PCI bus is %02x)\n", count, MaxPCIBus);
 }
 
 // Search for a device with the specified vendor and device ids.

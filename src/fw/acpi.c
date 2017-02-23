@@ -110,7 +110,7 @@ static void fill_dsdt(struct fadt_descriptor_rev1 *fadt, void *dsdt)
     }
     fadt->dsdt = cpu_to_le32((u32)dsdt);
     fadt->checksum -= checksum(fadt, sizeof(*fadt));
-    dprintf(2, "ACPI DSDT=%p\n", dsdt);
+    dprintf(1, "ACPI DSDT=%p\n", dsdt);
 }
 
 static void *

@@ -108,10 +108,10 @@ handle_155307(struct bregs *regs)
     }
     switch (regs->cx) {
     case 1:
-        dprintf(2, "APM standby request\n");
+        dprintf(1, "APM standby request\n");
         break;
     case 2:
-        dprintf(2, "APM suspend request\n");
+        dprintf(1, "APM suspend request\n");
         break;
     case 3:
         apm_shutdown();

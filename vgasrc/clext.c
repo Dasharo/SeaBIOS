@@ -7,13 +7,13 @@
 
 #include "biosvar.h" // GET_GLOBAL
 #include "bregs.h" // struct bregs
-#include "clext.h" // clext_setup
 #include "hw/pci.h" // pci_config_readl
 #include "hw/pci_regs.h" // PCI_BASE_ADDRESS_0
 #include "output.h" // dprintf
 #include "stdvga.h" // VGAREG_SEQU_ADDRESS
 #include "string.h" // memset16_far
-#include "vgabios.h" // VBE_VENDOR_STRING
+#include "vgabios.h" // SET_VGA
+#include "vgautil.h" // VBE_total_memory
 
 
 /****************************************************************
@@ -444,7 +444,7 @@ clext_set_mode(struct vgamode_s *vmode_g, int flags)
 {
     if (!is_cirrus_mode(vmode_g)) {
         cirrus_switch_mode(&mode_switchback);
-        dprintf(2, "cirrus mode switch regular\n");
+        dprintf(1, "cirrus mode switch regular\n");
         return stdvga_set_mode(vmode_g, flags);
     }
     struct cirrus_mode_s *table_g = container_of(
@@ -597,10 +597,10 @@ clext_setup(void)
     if (ret)
         return ret;
 
-    dprintf(2, "cirrus init\n");
+    dprintf(1, "cirrus init\n");
     if (! cirrus_check())
         return -1;
-    dprintf(2, "cirrus init 2\n");
+    dprintf(1, "cirrus init 2\n");
 
     // memory setup
     stdvga_sequ_write(0x0a, stdvga_sequ_read(0x0f) & 0x18);

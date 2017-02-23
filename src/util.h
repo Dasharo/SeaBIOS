@@ -38,6 +38,7 @@ struct usbdevice_s;
 int bootprio_find_usb(struct usbdevice_s *usbdev, int lun);
 int get_keystroke(int msec);
 int find_pxen(void);
+int find_sgaen(void);
 
 // bootsplash.c
 void enable_vga_console(void);
@@ -73,6 +74,7 @@ extern struct rsdp_descriptor *RsdpAddr;
 extern u32 acpi_pm1a_cnt;
 extern u16 acpi_pm_base;
 void *find_acpi_rsdp(void);
+void *find_acpi_table(u32 signature);
 u32 find_resume_vector(void);
 void acpi_reboot(void);
 void find_acpi_features(void);
@@ -136,6 +138,7 @@ void smm_setup(void);
 extern u32 MaxCountCPUs;
 void wrmsr_smp(u32 index, u64 val);
 void smp_setup(void);
+void smp_resume(void);
 int apic_id_is_present(u8 apic_id);
 
 // hw/dma.c
@@ -185,7 +188,6 @@ int jpeg_show(struct jpeg_decdata *jpeg, unsigned char *pic, int width
 void kbd_init(void);
 void handle_15c2(struct bregs *regs);
 void process_key(u8 key);
-u8 kbc_enqueue_key(u8 scan_code, u8 ascii_code);
 
 // misc.c
 extern int HaveRunPost;
@@ -236,13 +238,12 @@ void lpt_setup(void);
 // serialconsole.c
 void uart_keyboard_handler(void);
 
+// version.c
+extern const char VERSION[], BUILDINFO[];
+
 // vgahooks.c
 void handle_155f(struct bregs *regs);
 void handle_157f(struct bregs *regs);
 void vgahook_setup(struct pci_device *pci);
-
-
-// version (auto generated file out/version.c)
-extern const char VERSION[], BUILDINFO[];
 
 #endif // util.h

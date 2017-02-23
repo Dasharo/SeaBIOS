@@ -39,7 +39,7 @@ call16_int10(struct bregs *br)
 void
 enable_vga_console(void)
 {
-    dprintf(2, "Turning on vga text mode console\n");
+    dprintf(1, "Turning on vga text mode console\n");
     struct bregs br;
 
     /* Enable VGA text mode */
@@ -52,7 +52,7 @@ enable_vga_console(void)
     call16_int10(&br);
 
     // Write to screen.
-    dprintf(3, "SeaBIOS (version %s)\n", VERSION);
+    printf("SeaBIOS (version %s)\n", VERSION);
     display_uuid();
 }
 

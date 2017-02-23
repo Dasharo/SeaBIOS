@@ -15,34 +15,12 @@
 #include "string.h" // memset
 #include "util.h" // kbd_init
 
-// Bit definitions for BDA kbd_flag[012]
-#define KF0_RSHIFT       (1<<0)
-#define KF0_LSHIFT       (1<<1)
-#define KF0_CTRLACTIVE   (1<<2)
-#define KF0_ALTACTIVE    (1<<3)
-#define KF0_SCROLLACTIVE (1<<4)
-#define KF0_NUMACTIVE    (1<<5)
-#define KF0_CAPSACTIVE   (1<<6)
-
-#define KF1_LCTRL        (1<<0)
-#define KF1_LALT         (1<<1)
-#define KF1_PAUSEACTIVE  (1<<3)
-#define KF1_SCROLL       (1<<4)
-#define KF1_NUM          (1<<5)
-#define KF1_CAPS         (1<<6)
-
-#define KF2_LAST_E1    (1<<0)
-#define KF2_LAST_E0    (1<<1)
-#define KF2_RCTRL      (1<<2)
-#define KF2_RALT       (1<<3)
-#define KF2_101KBD     (1<<4)
-
 void
 kbd_init(void)
 {
     dprintf(3, "init keyboard\n");
     u16 x = offsetof(struct bios_data_area_s, kbd_buf);
-    SET_BDA(kbd_flag2, KF2_101KBD);
+    SET_BDA(kbd_flag1, KF1_101KBD);
     SET_BDA(kbd_buf_head, x);
     SET_BDA(kbd_buf_tail, x);
     SET_BDA(kbd_buf_start_offset, x);
@@ -94,7 +72,22 @@ dequeue_key(struct bregs *regs, int incr, int extended)
 
     u16 keycode = GET_FARVAR(SEG_BDA, *(u16*)(buffer_head+0));
     u8 ascii = keycode & 0xff;
-    if ((ascii == 0xf0 && keycode > 0xff) || (ascii == 0xe0 && !extended))
+    if (!extended) {
+        // Translate extended keys
+        if (ascii == 0xe0 && keycode & 0xff00)
+            keycode &= 0xff00;
+        else if (keycode == 0xe00d || keycode == 0xe00a)
+            // Extended enter key
+            keycode = 0x1c00 | ascii;
+        else if (keycode == 0xe02f)
+            // Extended '/' key
+            keycode = 0x352f;
+        // Technically, if the ascii value is 0xf0 or if the
+        // 'scancode' is greater than 0x84 then the key should be
+        // discarded.  However, there seems no harm in passing on the
+        // extended values in these cases.
+    }
+    if (ascii == 0xf0 && keycode & 0xff00)
         keycode &= 0xff00;
     regs->ax = keycode;
 
@@ -197,9 +190,8 @@ static void
 handle_1612(struct bregs *regs)
 {
     yield();
-    regs->al = GET_BDA(kbd_flag0);
-    regs->ah = ((GET_BDA(kbd_flag1) & ~(KF2_RCTRL|KF2_RALT))
-                | (GET_BDA(kbd_flag2) & (KF2_RCTRL|KF2_RALT)));
+    regs->ax = ((GET_BDA(kbd_flag0) & ~((KF1_RCTRL|KF1_RALT) << 8))
+                | ((GET_BDA(kbd_flag1) & (KF1_RCTRL|KF1_RALT)) << 8));
     //BX_DEBUG_INT16("int16: func 12 sending %04x\n",AX);
 }
 
@@ -286,7 +278,7 @@ static struct scaninfo {
     u16 alt;
 } scan_to_keycode[] VAR16 = {
     {   none,   none,   none,   none },
-    { 0x011b, 0x011b, 0x011b, 0x0100 }, /* escape */
+    { 0x011b, 0x011b, 0x011b, 0x01f0 }, /* escape */
     { 0x0231, 0x0221,   none, 0x7800 }, /* 1! */
     { 0x0332, 0x0340, 0x0300, 0x7900 }, /* 2@ */
     { 0x0433, 0x0423,   none, 0x7a00 }, /* 3# */
@@ -299,8 +291,8 @@ static struct scaninfo {
     { 0x0b30, 0x0b29,   none, 0x8100 }, /* 0) */
     { 0x0c2d, 0x0c5f, 0x0c1f, 0x8200 }, /* -_ */
     { 0x0d3d, 0x0d2b,   none, 0x8300 }, /* =+ */
-    { 0x0e08, 0x0e08, 0x0e7f,   none }, /* backspace */
-    { 0x0f09, 0x0f00,   none,   none }, /* tab */
+    { 0x0e08, 0x0e08, 0x0e7f, 0x0ef0 }, /* backspace */
+    { 0x0f09, 0x0f00, 0x9400, 0xa5f0 }, /* tab */
     { 0x1071, 0x1051, 0x1011, 0x1000 }, /* Q */
     { 0x1177, 0x1157, 0x1117, 0x1100 }, /* W */
     { 0x1265, 0x1245, 0x1205, 0x1200 }, /* E */
@@ -311,9 +303,9 @@ static struct scaninfo {
     { 0x1769, 0x1749, 0x1709, 0x1700 }, /* I */
     { 0x186f, 0x184f, 0x180f, 0x1800 }, /* O */
     { 0x1970, 0x1950, 0x1910, 0x1900 }, /* P */
-    { 0x1a5b, 0x1a7b, 0x1a1b,   none }, /* [{ */
-    { 0x1b5d, 0x1b7d, 0x1b1d,   none }, /* ]} */
-    { 0x1c0d, 0x1c0d, 0x1c0a,   none }, /* Enter */
+    { 0x1a5b, 0x1a7b, 0x1a1b, 0x1af0 }, /* [{ */
+    { 0x1b5d, 0x1b7d, 0x1b1d, 0x1bf0 }, /* ]} */
+    { 0x1c0d, 0x1c0d, 0x1c0a, 0x1cf0 }, /* Enter */
     {   none,   none,   none,   none }, /* L Ctrl */
     { 0x1e61, 0x1e41, 0x1e01, 0x1e00 }, /* A */
     { 0x1f73, 0x1f53, 0x1f13, 0x1f00 }, /* S */
@@ -324,11 +316,11 @@ static struct scaninfo {
     { 0x246a, 0x244a, 0x240a, 0x2400 }, /* J */
     { 0x256b, 0x254b, 0x250b, 0x2500 }, /* K */
     { 0x266c, 0x264c, 0x260c, 0x2600 }, /* L */
-    { 0x273b, 0x273a,   none,   none }, /* ;: */
-    { 0x2827, 0x2822,   none,   none }, /* '" */
-    { 0x2960, 0x297e,   none,   none }, /* `~ */
+    { 0x273b, 0x273a,   none, 0x27f0 }, /* ;: */
+    { 0x2827, 0x2822,   none, 0x28f0 }, /* '" */
+    { 0x2960, 0x297e,   none, 0x29f0 }, /* `~ */
     {   none,   none,   none,   none }, /* L shift */
-    { 0x2b5c, 0x2b7c, 0x2b1c,   none }, /* |\ */
+    { 0x2b5c, 0x2b7c, 0x2b1c, 0x2bf0 }, /* |\ */
     { 0x2c7a, 0x2c5a, 0x2c1a, 0x2c00 }, /* Z */
     { 0x2d78, 0x2d58, 0x2d18, 0x2d00 }, /* X */
     { 0x2e63, 0x2e43, 0x2e03, 0x2e00 }, /* C */
@@ -336,11 +328,11 @@ static struct scaninfo {
     { 0x3062, 0x3042, 0x3002, 0x3000 }, /* B */
     { 0x316e, 0x314e, 0x310e, 0x3100 }, /* N */
     { 0x326d, 0x324d, 0x320d, 0x3200 }, /* M */
-    { 0x332c, 0x333c,   none,   none }, /* ,< */
-    { 0x342e, 0x343e,   none,   none }, /* .> */
-    { 0x352f, 0x353f,   none,   none }, /* /? */
+    { 0x332c, 0x333c,   none, 0x33f0 }, /* ,< */
+    { 0x342e, 0x343e,   none, 0x34f0 }, /* .> */
+    { 0x352f, 0x353f,   none, 0x35f0 }, /* /? */
     {   none,   none,   none,   none }, /* R Shift */
-    { 0x372a, 0x372a,   none,   none }, /* * */
+    { 0x372a, 0x372a, 0x9600, 0x37f0 }, /* * */
     {   none,   none,   none,   none }, /* L Alt */
     { 0x3920, 0x3920, 0x3920, 0x3920 }, /* space */
     {   none,   none,   none,   none }, /* caps lock */
@@ -357,185 +349,217 @@ static struct scaninfo {
     {   none,   none,   none,   none }, /* Num Lock */
     {   none,   none,   none,   none }, /* Scroll Lock */
     { 0x4700, 0x4737, 0x7700,   none }, /* 7 Home */
-    { 0x4800, 0x4838,   none,   none }, /* 8 UP */
+    { 0x4800, 0x4838, 0x8d00,   none }, /* 8 UP */
     { 0x4900, 0x4939, 0x8400,   none }, /* 9 PgUp */
-    { 0x4a2d, 0x4a2d,   none,   none }, /* - */
+    { 0x4a2d, 0x4a2d, 0x8e00, 0x4af0 }, /* - */
     { 0x4b00, 0x4b34, 0x7300,   none }, /* 4 Left */
-    { 0x4c00, 0x4c35,   none,   none }, /* 5 */
+    { 0x4c00, 0x4c35, 0x8f00,   none }, /* 5 */
     { 0x4d00, 0x4d36, 0x7400,   none }, /* 6 Right */
-    { 0x4e2b, 0x4e2b,   none,   none }, /* + */
+    { 0x4e2b, 0x4e2b, 0x9000, 0x4ef0 }, /* + */
     { 0x4f00, 0x4f31, 0x7500,   none }, /* 1 End */
-    { 0x5000, 0x5032,   none,   none }, /* 2 Down */
+    { 0x5000, 0x5032, 0x9100,   none }, /* 2 Down */
     { 0x5100, 0x5133, 0x7600,   none }, /* 3 PgDn */
-    { 0x5200, 0x5230,   none,   none }, /* 0 Ins */
-    { 0x5300, 0x532e,   none,   none }, /* Del */
-    {   none,   none,   none,   none },
+    { 0x5200, 0x5230, 0x9200,   none }, /* 0 Ins */
+    { 0x5300, 0x532e, 0x9300,   none }, /* Del */
+    {   none,   none,   none,   none }, /* SysReq */
     {   none,   none,   none,   none },
     { 0x565c, 0x567c,   none,   none }, /* \| */
     { 0x8500, 0x8700, 0x8900, 0x8b00 }, /* F11 */
     { 0x8600, 0x8800, 0x8a00, 0x8c00 }, /* F12 */
 };
 
+struct scaninfo key_ext_enter VAR16 = {
+    0xe00d, 0xe00d, 0xe00a, 0xa600
+};
+struct scaninfo key_ext_slash VAR16 = {
+    0xe02f, 0xe02f, 0x9500, 0xa400
+};
+
+static void
+kbd_set_flag(int key_release, u16 set_bit0, u8 set_bit1, u16 toggle_bit)
+{
+    u16 flags0 = GET_BDA(kbd_flag0);
+    u8 flags1 = GET_BDA(kbd_flag1);
+    if (key_release) {
+        flags0 &= ~set_bit0;
+        flags1 &= ~set_bit1;
+    } else {
+        flags0 ^= toggle_bit;
+        flags0 |= set_bit0;
+        flags1 |= set_bit1;
+    }
+    SET_BDA(kbd_flag0, flags0);
+    SET_BDA(kbd_flag1, flags1);
+}
+
+static void
+kbd_ctrl_break(int key_release)
+{
+    if (!key_release)
+        return;
+    // Clear keyboard buffer and place 0x0000 in buffer
+    u16 buffer_start = GET_BDA(kbd_buf_start_offset);
+    SET_BDA(kbd_buf_head, buffer_start);
+    SET_BDA(kbd_buf_tail, buffer_start+2);
+    SET_FARVAR(SEG_BDA, *(u16*)(buffer_start+0), 0x0000);
+    // Set break flag
+    SET_BDA(break_flag, 0x80);
+    // Generate int 0x1b
+    struct bregs br;
+    memset(&br, 0, sizeof(br));
+    br.flags = F_IF;
+    call16_int(0x1b, &br);
+}
+
+static void
+kbd_sysreq(int key_release)
+{
+    // SysReq generates int 0x15/0x85
+    struct bregs br;
+    memset(&br, 0, sizeof(br));
+    br.ah = 0x85;
+    br.al = key_release ? 0x01 : 0x00;
+    br.flags = F_IF;
+    call16_int(0x15, &br);
+}
+
+static void
+kbd_prtscr(int key_release)
+{
+    if (key_release)
+        return;
+    // PrtScr generates int 0x05 (ctrl-prtscr has keycode 0x7200?)
+    struct bregs br;
+    memset(&br, 0, sizeof(br));
+    br.flags = F_IF;
+    call16_int(0x05, &br);
+}
+
 // Handle a ps2 style scancode read from the keyboard.
 static void
 __process_key(u8 scancode)
 {
-    u8 flags0 = GET_BDA(kbd_flag0);
+    // Check for multi-scancode key sequences
     u8 flags1 = GET_BDA(kbd_flag1);
-    u8 flags2 = GET_BDA(kbd_flag2);
-
-    if (flags2 & KF2_LAST_E1) {
-        // Part of "pause" key (sequence is e1 1d 45 e1 9d c5)
-        if ((scancode & ~0x80) == 0x1d)
-            // Second key of sequence
-            return;
-        // Third key of sequence - clear flag.
-        flags2 &= ~KF2_LAST_E1;
-        SET_BDA(kbd_flag2, flags2);
-
-        if (scancode == 0xc5) {
-            // Final key in sequence.
-
-            // XXX - do actual pause.
-        }
+    if (scancode == 0xe0 || scancode == 0xe1) {
+        // Start of two byte extended (e0) or three byte pause key (e1) sequence
+        u8 eflag = scancode == 0xe0 ? KF1_LAST_E0 : KF1_LAST_E1;
+        SET_BDA(kbd_flag1, flags1 | eflag);
         return;
     }
+    int key_release = scancode & 0x80;
+    scancode &= ~0x80;
+    if (flags1 & (KF1_LAST_E0|KF1_LAST_E1)) {
+        if (flags1 & KF1_LAST_E1 && scancode == 0x1d)
+            // Ignore second byte of pause key (e1 1d 45 / e1 9d c5)
+            return;
+        // Clear E0/E1 flag in memory for next key event
+        SET_BDA(kbd_flag1, flags1 & ~(KF1_LAST_E0|KF1_LAST_E1));
+    }
 
-    // XXX - PrtScr should cause int 0x05
-    // XXX - Ctrl+Break should cause int 0x1B
-    // XXX - SysReq should cause int 0x15/0x85
-
+    // Check for special keys
     switch (scancode) {
-    case 0x00:
-        dprintf(2, "KBD: int09 handler: AL=0\n");
+    case 0x3a: /* Caps Lock */
+        kbd_set_flag(key_release, KF0_CAPS, 0, KF0_CAPSACTIVE);
+        return;
+    case 0x2a: /* L Shift */
+        if (flags1 & KF1_LAST_E0)
+            // Ignore fake shifts
+            return;
+        kbd_set_flag(key_release, KF0_LSHIFT, 0, 0);
+        return;
+    case 0x36: /* R Shift */
+        if (flags1 & KF1_LAST_E0)
+            // Ignore fake shifts
+            return;
+        kbd_set_flag(key_release, KF0_RSHIFT, 0, 0);
+        return;
+    case 0x1d: /* Ctrl */
+        if (flags1 & KF1_LAST_E0)
+            kbd_set_flag(key_release, KF0_CTRLACTIVE, KF1_RCTRL, 0);
+        else
+            kbd_set_flag(key_release, KF0_CTRLACTIVE | KF0_LCTRL, 0, 0);
+        return;
+    case 0x38: /* Alt */
+        if (flags1 & KF1_LAST_E0)
+            kbd_set_flag(key_release, KF0_ALTACTIVE, KF1_RALT, 0);
+        else
+            kbd_set_flag(key_release, KF0_ALTACTIVE | KF0_LALT, 0, 0);
+        return;
+    case 0x45: /* Num Lock */
+        if (flags1 & KF1_LAST_E1)
+            // XXX - pause key.
+            return;
+        kbd_set_flag(key_release, KF0_NUM, 0, KF0_NUMACTIVE);
+        return;
+    case 0x46: /* Scroll Lock */
+        if (flags1 & KF1_LAST_E0) {
+            kbd_ctrl_break(key_release);
+            return;
+        }
+        kbd_set_flag(key_release, KF0_SCROLL, 0, KF0_SCROLLACTIVE);
         return;
 
-    case 0x3a: /* Caps Lock press */
-        flags0 ^= KF0_CAPSACTIVE;
-        flags1 |= KF1_CAPS;
+    case 0x37: /* * */
+        if (flags1 & KF1_LAST_E0) {
+            kbd_prtscr(key_release);
+            return;
+        }
         break;
-    case 0xba: /* Caps Lock release */
-        flags1 &= ~KF1_CAPS;
-        break;
-
-    case 0x2a: /* L Shift press */
-        flags0 |= KF0_LSHIFT;
-        break;
-    case 0xaa: /* L Shift release */
-        flags0 &= ~KF0_LSHIFT;
-        break;
-
-    case 0x36: /* R Shift press */
-        flags0 |= KF0_RSHIFT;
-        break;
-    case 0xb6: /* R Shift release */
-        flags0 &= ~KF0_RSHIFT;
-        break;
-
-    case 0x1d: /* Ctrl press */
-        flags0 |= KF0_CTRLACTIVE;
-        if (flags2 & KF2_LAST_E0)
-            flags2 |= KF2_RCTRL;
-        else
-            flags1 |= KF1_LCTRL;
-        break;
-    case 0x9d: /* Ctrl release */
-        flags0 &= ~KF0_CTRLACTIVE;
-        if (flags2 & KF2_LAST_E0)
-            flags2 &= ~KF2_RCTRL;
-        else
-            flags1 &= ~KF1_LCTRL;
-        break;
-
-    case 0x38: /* Alt press */
-        flags0 |= KF0_ALTACTIVE;
-        if (flags2 & KF2_LAST_E0)
-            flags2 |= KF2_RALT;
-        else
-            flags1 |= KF1_LALT;
-        break;
-    case 0xb8: /* Alt release */
-        flags0 &= ~KF0_ALTACTIVE;
-        if (flags2 & KF2_LAST_E0)
-            flags2 &= ~KF2_RALT;
-        else
-            flags1 &= ~KF1_LALT;
-        break;
-
-    case 0x45: /* Num Lock press */
-        flags1 |= KF1_NUM;
-        flags0 ^= KF0_NUMACTIVE;
-        break;
-    case 0xc5: /* Num Lock release */
-        flags1 &= ~KF1_NUM;
-        break;
-
-    case 0x46: /* Scroll Lock press */
-        flags1 |= KF1_SCROLL;
-        flags0 ^= KF0_SCROLLACTIVE;
-        break;
-    case 0xc6: /* Scroll Lock release */
-        flags1 &= ~KF1_SCROLL;
-        break;
-
-    case 0xe0:
-        // Extended key
-        flags2 |= KF2_LAST_E0;
-        SET_BDA(kbd_flag2, flags2);
+    case 0x54: /* SysReq */
+        kbd_sysreq(key_release);
         return;
-    case 0xe1:
-        // Start of pause key sequence
-        flags2 |= KF2_LAST_E1;
-        break;
-
-    default:
-        if (scancode & 0x80)
-            // toss key releases
-            break;
-        if (scancode == 0x53
-            && ((flags0 & (KF0_CTRLACTIVE|KF0_ALTACTIVE))
-                == (KF0_CTRLACTIVE|KF0_ALTACTIVE))) {
+    case 0x53: /* Del */
+        if ((GET_BDA(kbd_flag0) & (KF0_CTRLACTIVE|KF0_ALTACTIVE))
+            == (KF0_CTRLACTIVE|KF0_ALTACTIVE) && !key_release) {
             // Ctrl+alt+del - reset machine.
             SET_BDA(soft_reset_flag, 0x1234);
             reset();
         }
-        if (scancode >= ARRAY_SIZE(scan_to_keycode)) {
-            dprintf(2, "KBD: int09h_handler(): unknown scancode read: 0x%02x!\n"
-                    , scancode);
-            return;
-        }
-        u16 keycode;
-        struct scaninfo *info = &scan_to_keycode[scancode];
-        if (flags0 & KF0_ALTACTIVE) {
-            keycode = GET_GLOBAL(info->alt);
-        } else if (flags0 & KF0_CTRLACTIVE) {
-            keycode = GET_GLOBAL(info->control);
-        } else if (flags2 & KF2_LAST_E0
-                   && scancode >= 0x47 && scancode <= 0x53) {
-            /* extended keys handling */
-            keycode = (scancode << 8) | 0xe0;
-        } else {
-            u8 useshift = flags0 & (KF0_RSHIFT|KF0_LSHIFT) ? 1 : 0;
-            u8 ascii = GET_GLOBAL(info->normal) & 0xff;
-            if ((flags0 & KF0_NUMACTIVE && scancode >= 0x47 && scancode <= 0x53)
-                || (flags0 & KF0_CAPSACTIVE && ascii >= 'a' && ascii <= 'z'))
-                // Numlock/capslock toggles shift on certain keys
-                useshift ^= 1;
-            if (useshift)
-                keycode = GET_GLOBAL(info->shift);
-            else
-                keycode = GET_GLOBAL(info->normal);
-        }
-        if (!keycode)
-            dprintf(2, "KBD: keycode is zero?\n");
-        enqueue_key(keycode);
+        break;
+
+    default:
         break;
     }
-    flags2 &= ~KF2_LAST_E0;
 
-    SET_BDA(kbd_flag0, flags0);
-    SET_BDA(kbd_flag1, flags1);
-    SET_BDA(kbd_flag2, flags2);
+    // Handle generic keys
+    if (key_release)
+        // ignore key releases
+        return;
+    if (!scancode || scancode >= ARRAY_SIZE(scan_to_keycode)) {
+        dprintf(1, "__process_key unknown scancode read: 0x%02x!\n", scancode);
+        return;
+    }
+    struct scaninfo *info = &scan_to_keycode[scancode];
+    if (flags1 & KF1_LAST_E0 && (scancode == 0x1c || scancode == 0x35))
+        info = (scancode == 0x1c ? &key_ext_enter : &key_ext_slash);
+    u16 flags0 = GET_BDA(kbd_flag0);
+    u16 keycode;
+    if (flags0 & KF0_ALTACTIVE) {
+        keycode = GET_GLOBAL(info->alt);
+    } else if (flags0 & KF0_CTRLACTIVE) {
+        keycode = GET_GLOBAL(info->control);
+    } else {
+        u8 useshift = flags0 & (KF0_RSHIFT|KF0_LSHIFT) ? 1 : 0;
+        u8 ascii = GET_GLOBAL(info->normal) & 0xff;
+        if ((flags0 & KF0_NUMACTIVE && scancode >= 0x47 && scancode <= 0x53)
+            || (flags0 & KF0_CAPSACTIVE && ascii >= 'a' && ascii <= 'z'))
+            // Numlock/capslock toggles shift on certain keys
+            useshift ^= 1;
+        if (useshift)
+            keycode = GET_GLOBAL(info->shift);
+        else
+            keycode = GET_GLOBAL(info->normal);
+    }
+    if (flags1 & KF1_LAST_E0 && scancode >= 0x47 && scancode <= 0x53) {
+        /* extended keys handling */
+        if (flags0 & KF0_ALTACTIVE)
+            keycode = (scancode + 0x50) << 8;
+        else
+            keycode = (keycode & 0xff00) | 0xe0;
+    }
+    if (keycode)
+        enqueue_key(keycode);
 }
 
 void
