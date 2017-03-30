@@ -36,7 +36,7 @@ def git_version():
     if not os.path.exists('.git'):
         logging.debug("No '.git' file/directory found")
         return ""
-    ver = check_output("git describe --tags --long --dirty").strip()
+    ver = check_output("git describe --tags --dirty").strip()
     logging.debug("Got git version: %s" % (repr(ver),))
     return ver
 
@@ -114,7 +114,7 @@ def main():
     cleanbuild, toolstr = tool_versions(options.tools)
 
     ver = git_version()
-    cleanbuild = cleanbuild and 'dirty' not in ver
+    cleanbuild = 'dirty' not in ver
     if not ver:
         ver = file_version()
         # We expect the "extra version" to contain information on the
