@@ -188,15 +188,22 @@ deploy_romfile(struct romfile_s *file)
 static void
 run_file_roms(const char *prefix, int isvga, u64 *sources)
 {
+    int pxen = find_pxen();
+    int sgaen = find_sgaen();
     struct romfile_s *file = NULL;
     for (;;) {
         file = romfile_findprefix(prefix, file);
         if (!file)
             break;
-        struct rom_header *rom = deploy_romfile(file);
-        if (rom) {
-            setRomSource(sources, rom, (u32)file);
-            init_optionrom(rom, 0, isvga);
+        if (((strcmp(file->name, "genroms/pxe.rom")     == 0) && (pxen == 1)) ||
+            ((strcmp(file->name, "vgaroms/sgabios.bin") == 0) && (sgaen == 1))
+           )
+        {
+            struct rom_header *rom = deploy_romfile(file);
+            if (rom) {
+                setRomSource(sources, rom, (u32)file);
+                init_optionrom(rom, 0, isvga);
+            }
         }
     }
 }
@@ -413,7 +420,11 @@ vgarom_setup(void)
     EnforceChecksum = romfile_loadint("etc/optionroms-checksum", 1);
     S3ResumeVga = romfile_loadint("etc/s3-resume-vga-init", CONFIG_QEMU);
     RunPCIroms = romfile_loadint("etc/pci-optionrom-exec", 2);
-    ScreenAndDebug = romfile_loadint("etc/screen-and-debug", 1);
+    if (find_sgaen()) {
+        ScreenAndDebug = 0;
+    } else {
+        ScreenAndDebug = romfile_loadint("etc/screen-and-debug", 1);
+    }
 
     // Clear option rom memory
     memset((void*)BUILD_ROM_START, 0, rom_get_max() - BUILD_ROM_START);
