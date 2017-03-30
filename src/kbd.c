@@ -29,7 +29,7 @@ kbd_init(void)
             , x + FIELD_SIZEOF(struct bios_data_area_s, kbd_buf));
 }
 
-static u8
+u8
 enqueue_key(u16 keycode)
 {
     u16 buffer_start = GET_BDA(kbd_buf_start_offset);

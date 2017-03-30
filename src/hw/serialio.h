@@ -20,6 +20,8 @@
 #define SEROFF_LSR     5
 #define SEROFF_MSR     6
 
+#define UART_THRE (1 << 5)
+
 void serial_debug_preinit(void);
 void serial_debug_putc(char c);
 void serial_debug_flush(void);

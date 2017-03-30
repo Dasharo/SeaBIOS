@@ -11,6 +11,7 @@
 #include "output.h" // debug_enter
 #include "stacks.h" // call16_int
 #include "string.h" // memset
+#include "hw/serialio.h" 
 
 #define PORT_MATH_CLEAR        0x00f0
 
@@ -57,6 +58,23 @@ handle_10(struct bregs *regs)
 {
     debug_enter(regs, DEBUG_HDL_10);
     // don't do anything, since the VGA BIOS handles int10h requests
+#if CONFIG_SEABIOS_SERIAL_CONSOLE
+    switch (regs->ah) {
+    case 0x0A: // Write char at cursor
+    case 0x0E: // Write text in tele-type mode
+		{
+		#define UART_THRE (1 << 5)
+		    int timeout = 100000;
+
+		    while ((inb(CONFIG_DEBUG_SERIAL_PORT + SEROFF_LSR) & UART_THRE) != UART_THRE)
+		        if (!timeout--) return;
+		}
+        break;
+    default:
+        dprintf(2, "unhandled INT10 ah=%x al=%x\n",regs->ah,regs->al);
+        break;
+    }
+#endif
 }
 
 // NMI handler
