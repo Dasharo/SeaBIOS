@@ -4,6 +4,11 @@ Change log for PC Engines fork of SeaBIOS
 Fourth digit in release number means PC Engines patch.
 
 ## [Unreleased]
+
+## [rel-1.10.2.1] - 2017-03-31
+### Changed
+- rebased to 1.10.2 stable mainline
+
 ## [rel-1.10.0.1] - 2017-02-23
 ### Changed
 - rebased to 1.10.0 mainline
@@ -36,7 +41,8 @@ Fourth digit in release number means PC Engines patch.
 ### Fixed
 - prevented from printing character multiple times
 
-[Unreleased]: https://github.com/pcengines/seabios/compare/rel-1.10.0.1...coreboot-4.0.x
+[Unreleased]: https://github.com/pcengines/seabios/compare/rel-1.10.2.1...apu_support
+[rel-1.10.2.1]: https://github.com/pcengines/seabios/compare/rel-1.10.2.1...rel-1.10.0.1
 [rel-1.10.0.1]: https://github.com/pcengines/seabios/compare/rel-1.9.2.4...rel-1.10.0.1
 [rel-1.9.2.4]: https://github.com/pcengines/seabios/compare/rel-1.9.2.3...rel-1.9.2.4
 [rel-1.9.2.3]: https://github.com/pcengines/seabios/compare/rel-1.9.2.2...rel-1.9.2.3
