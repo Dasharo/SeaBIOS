@@ -12,6 +12,7 @@
 #include "string.h" // memcpy
 #include "romfile.h" // romfile_loadint
 #include "hw/serialio.h" // SEROFF_IER
+#include "malloc.h"
 #include "cp437.h"
 
 static u8 video_rows(void)
@@ -40,6 +41,85 @@ static void cursor_pos_set(u8 row, u8 col)
 {
     u16 pos = ((u16)row << 8) | col;
     SET_BDA(cursor_pos[0], pos);
+}
+
+static char **BootOrder VARVERIFY32INIT;
+static int BootOrderCount;
+static int scon;
+
+static void
+loadBootOrder(void)
+{
+    if (!CONFIG_BOOTORDER)
+        return;
+
+    char *f = romfile_loadfile("bootorder", NULL);
+    if (!f)
+        return;
+
+    int i = 0;
+    BootOrderCount = 1;
+    while (f[i]) {
+        if (f[i] == '\n')
+            BootOrderCount++;
+        i++;
+    }
+    BootOrder = malloc_tmphigh(BootOrderCount*sizeof(char*));
+    if (!BootOrder) {
+        warn_noalloc();
+        free(f);
+        BootOrderCount = 0;
+        return;
+    }
+
+    dprintf(1, "boot order:\n");
+    i = 0;
+    do {
+        BootOrder[i] = f;
+        f = strchr(f, '\n');
+        if (f)
+            *(f++) = '\0';
+        BootOrder[i] = nullTrailingSpace(BootOrder[i]);
+        dprintf(1, "%d: %s\n", i+1, BootOrder[i]);
+        i++;
+    } while (f);
+}
+
+// See if 'str' starts with 'glob' - if glob contains an '*' character
+// it will match any number of characters in str that aren't a '/' or
+// the next glob character.
+static char *
+find_glob_prefix(const char *glob, const char *str)
+{
+    for (;;) {
+        if (!*glob && (!*str || *str == '/'))
+            return (char*)str;
+        if (*glob == '*') {
+            if (!*str || *str == '/' || *str == glob[1])
+                glob++;
+            else
+                str++;
+            continue;
+        }
+        if (*glob != *str)
+            return NULL;
+        glob++;
+        str++;
+    }
+}
+
+
+static int find_scon(void)
+{
+    int i = 0;
+    for (i=0; i < BootOrderCount; i++)
+    {
+        if (find_glob_prefix("scon0", BootOrder[i]))
+            return 0;
+        if (find_glob_prefix("scon1", BootOrder[i]))
+            return 1;
+    }
+    return -1;
 }
 
 /****************************************************************
@@ -522,6 +602,11 @@ void sercon_setup(void)
     addr = romfile_loadint("etc/sercon-port", 0);
     if (!addr)
         return;
+
+    loadBootOrder();
+
+    scon = find_scon();
+
     dprintf(1, "sercon: using ioport 0x%x\n", addr);
 
     if (CONFIG_DEBUG_SERIAL)
@@ -542,9 +627,13 @@ void sercon_setup(void)
     }
 
     SET_IVT(0x10, FUNC16(entry_sercon));
-    SET_LOW(sercon_port, addr);
-    outb(0x03, addr + SEROFF_LCR); // 8N1
-    outb(0x01, addr + 0x02);       // enable fifo
+    if(!scon) {
+        SET_LOW(sercon_enable, 0);
+    } else {
+        SET_LOW(sercon_port, addr);
+        outb(0x03, addr + SEROFF_LCR); // 8N1
+        outb(0x01, addr + 0x02);       // enable fifo
+    }
 }
 
 /****************************************************************
