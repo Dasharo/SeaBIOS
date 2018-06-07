@@ -413,12 +413,14 @@ usb_hub_port_setup(void *data)
     for (;;) {
         // Detect if device present (and possibly start reset)
         int ret = hub->op->detect(hub, port);
-        if (ret > 0)
-            // Device connected.
+        if (ret > 0) {
+            dprintf(3, "USB: Port %d device connected\n", port + 1);
             break;
-        if (ret < 0 || timer_check(hub->detectend))
-            // No device found.
+        }
+        if (ret < 0 || timer_check(hub->detectend)) {
+            dprintf(3, "USB: Port %d no device found\n", port + 1);
             goto done;
+        }
         msleep(20);
     }
 
@@ -427,9 +429,10 @@ usb_hub_port_setup(void *data)
     // Reset port and determine device speed
     mutex_lock(&hub->cntl->resetlock);
     int ret = hub->op->reset(hub, port);
-    if (ret < 0)
-        // Reset failed
+    if (ret < 0) {
+        dprintf(3,"USB reset port failed\n");
         goto resetfail;
+    }
     usbdev->speed = ret;
 
     msleep(20);
