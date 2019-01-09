@@ -4,6 +4,10 @@ Change log for PC Engines fork of SeaBIOS
 Fourth digit in release number means PC Engines patch.
 
 ## [Unreleased]
+## [rel-1.12.0.1] - 2019-01-09
+### Changed
+- rebased on SeaBIOS rel-1.12.0 stable release
+
 ## [rel-1.11.0.7] - 2018-12-03
 ### Added
 - enabled COM2 redirection option
@@ -73,7 +77,8 @@ Fourth digit in release number means PC Engines patch.
 ### Fixed
 - prevented from printing character multiple times
 
-[Unreleased]: https://github.com/pcengines/seabios/compare/rel-1.11.0.7...apu_support
+[Unreleased]: https://github.com/pcengines/seabios/compare/rel-1.12.0.1...apu_support
+[rel-1.12.0.1]: https://github.com/pcengines/seabios/compare/rel-1.11.0.7...rel-1.12.0.1
 [rel-1.11.0.7]: https://github.com/pcengines/seabios/compare/rel-1.11.0.6...rel-1.11.0.7
 [rel-1.11.0.6]: https://github.com/pcengines/seabios/compare/rel-1.11.0.5...rel-1.11.0.6
 [rel-1.11.0.5]: https://github.com/pcengines/seabios/compare/rel-1.11.0.4...rel-1.11.0.5
