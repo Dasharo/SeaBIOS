@@ -136,7 +136,7 @@ init_optionrom(struct rom_header *rom, u16 bdf, int isvga)
 
     tpm_option_rom(newrom, rom->size * 512);
 
-    if (isvga || get_pnp_rom(newrom))
+    if (isvga)
         // Only init vga and PnP roms here.
         callrom(newrom, bdf);
 
