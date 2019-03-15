@@ -474,6 +474,17 @@ static void sercon_10XX(struct bregs *regs)
     warn_unimplemented(regs);
 }
 
+void enable_sercon_entry_point(void)
+{
+    if (!CONFIG_SERCON)
+        return;
+    if (!GET_LOW(sercon_port))
+        return;
+
+    SET_LOW(sercon_enable, 1);
+}
+
+
 void VISIBLE16
 handle_sercon(struct bregs *regs)
 {

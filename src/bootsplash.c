@@ -133,6 +133,7 @@ enable_bootsplash(void)
     call16_int10(&br);
     if (vesa_info->signature != VESA_SIGNATURE) {
         dprintf(1,"No VBE2 found.\n");
+        enable_sercon_entry_point();
         goto done;
     }
 

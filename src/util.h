@@ -235,6 +235,7 @@ void code_mutable_preinit(void);
 // sercon.c
 void sercon_setup(void);
 void sercon_check_event(void);
+void enable_sercon_entry_point(void);
 
 // serial.c
 void serial_setup(void);
