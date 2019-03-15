@@ -728,7 +728,7 @@ static int xhci_event_wait(struct usb_xhci_s *xhci,
                            struct xhci_ring *ring,
                            u32 timeout)
 {
-    u32 end = timer_calc(timeout);
+    u32 end = timer_calc(timeout*2);
 
     for (;;) {
         xhci_process_events(xhci);
@@ -994,6 +994,8 @@ xhci_alloc_pipe(struct usbdevice_s *usbdev
         memset(dev, 0, size);
         xhci->devs[slotid].ptr_low = (u32)dev;
         xhci->devs[slotid].ptr_high = 0;
+
+        msleep(50);
 
         // Send set_address command.
         int cc = xhci_cmd_address_device(xhci, slotid, in);
