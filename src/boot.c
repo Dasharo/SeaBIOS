@@ -552,7 +552,7 @@ static int HaveHDBoot, HaveFDBoot;
 static void
 add_bev(int type, u32 vector)
 {
-    if (type == IPL_TYPE_HARDDISK && HaveHDBoot++)
+    if (type == IPL_TYPE_HARDDISK && HaveHDBoot)
         return;
     if (type == IPL_TYPE_FLOPPY && HaveFDBoot++)
         return;
@@ -748,7 +748,7 @@ do_boot(int seq_nr)
         break;
     case IPL_TYPE_HARDDISK:
         printf("Booting from Hard Disk...\n");
-        boot_disk(0x80, 1);
+        boot_disk(0x80 | seq_nr, 1);
         break;
     case IPL_TYPE_CDROM:
         boot_cdrom((void*)ie->vector);
