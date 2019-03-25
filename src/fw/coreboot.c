@@ -69,6 +69,15 @@ struct cb_forward {
     u64 forward;
 };
 
+#define CB_TAG_VERSION 0x0004
+#define CB_TAG_EXTRAVERSION 0x0005
+
+struct cb_string {
+        u32 tag;
+        u32 size;
+        char string[0];
+};
+
 #define CB_TAG_FORWARD 0x11
 
 struct cb_cbmem_ref {
@@ -161,6 +170,7 @@ find_cb_table(void)
 
 static struct cb_memory *CBMemTable;
 const char *CBvendor = "", *CBpart = "";
+const char *CBversion = "";
 
 // Populate max ram and e820 map info by scanning for a coreboot table.
 void
@@ -207,6 +217,14 @@ coreboot_preinit(void)
         dprintf(1, "Found mainboard %s %s\n", CBvendor, CBpart);
     }
 
+    struct cb_string *cb_ver = find_cb_subtable(cbh, CB_TAG_VERSION);
+    struct cb_string *cb_extraver = find_cb_subtable(cbh, CB_TAG_EXTRAVERSION);
+
+    if (strlen(cb_extraver->string))
+        CBversion = &cb_extraver->string[1];
+    else
+        CBversion = cb_ver->string;
+
     return;
 
 fail:
@@ -232,6 +250,15 @@ void coreboot_debug_putc(char c)
         flags |= CBMC_OVERFLOW;
     }
     cbcon->cursor = flags | cursor;
+}
+
+void display_coreboot_version(void)
+{
+    if (!CONFIG_COREBOOT)
+        return;
+
+    if (strlen(CBversion) > 0)
+        printf("coreboot version %s\n", CBversion);
 }
 
 /****************************************************************

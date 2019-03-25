@@ -50,6 +50,8 @@ enable_vga_console(void)
     // Write to screen.
     printf("SeaBIOS (version %s)\n", VERSION);
     display_uuid();
+
+    display_coreboot_version();
 }
 
 static int

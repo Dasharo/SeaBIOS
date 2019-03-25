@@ -96,6 +96,7 @@ void coreboot_cbfs_init(void);
 struct cb_header;
 void *find_cb_subtable(struct cb_header *cbh, u32 tag);
 struct cb_header *find_cb_table(void);
+void display_coreboot_version(void);
 
 // fw/csm.c
 int csm_bootprio_fdc(struct pci_device *pci, int port, int fdid);
