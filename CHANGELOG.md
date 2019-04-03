@@ -4,6 +4,13 @@ Change log for PC Engines fork of SeaBIOS
 Fourth digit in release number means PC Engines patch.
 
 ## [Unreleased]
+## [rel-1.12.1.1] - 2019-04-03
+### Changed
+- rebased on SeaBIOS official repository commit f4c6e4c
+
+### Added
+- [rebase introduced new TPM menu option to enable/disable PCR banks](https://github.com/pcengines/apu2-documentation/blob/master/docs/tpm_menu.md)
+
 ## [rel-1.12.0.1] - 2019-01-09
 ### Changed
 - rebased on SeaBIOS rel-1.12.0 stable release
@@ -77,7 +84,8 @@ Fourth digit in release number means PC Engines patch.
 ### Fixed
 - prevented from printing character multiple times
 
-[Unreleased]: https://github.com/pcengines/seabios/compare/rel-1.12.0.1...apu_support
+[Unreleased]: https://github.com/pcengines/seabios/compare/rel-1.12.1.1...apu_support
+[rel-1.12.1.1]: https://github.com/pcengines/seabios/compare/rel-1.12.0.1...rel-1.12.1.1
 [rel-1.12.0.1]: https://github.com/pcengines/seabios/compare/rel-1.11.0.7...rel-1.12.0.1
 [rel-1.11.0.7]: https://github.com/pcengines/seabios/compare/rel-1.11.0.6...rel-1.11.0.7
 [rel-1.11.0.6]: https://github.com/pcengines/seabios/compare/rel-1.11.0.5...rel-1.11.0.6
