@@ -333,7 +333,7 @@ xhci_hub_detect(struct usbhub_s *hub, u32 port)
 {
     struct usb_xhci_s *xhci = container_of(hub->cntl, struct usb_xhci_s, usb);
     u32 portsc = readl(&xhci->pr[port].portsc);
-    xhci_print_port_state(3, __func__, port, portsc);
+    xhci_print_port_state(8, __func__, port, portsc);
     return (portsc & XHCI_PORTSC_CCS) ? 1 : 0;
 }
 
