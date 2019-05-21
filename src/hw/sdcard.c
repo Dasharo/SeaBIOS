@@ -493,9 +493,11 @@ sdcard_controller_setup(struct sdhci_s *regs, int prio)
 {
     // Initialize controller
     u32 present_state = readl(&regs->present_state);
-    if (!(present_state & SP_CARD_INSERTED))
+    if (!(present_state & SP_CARD_INSERTED)) {
         // No card present
+        dprintf(3, "%s: No card present!\n", __func__);
         return;
+    }
     dprintf(3, "sdhci@%p ver=%x cap=%x %x\n", regs
             , readw(&regs->controller_version)
             , readl(&regs->cap_lo), readl(&regs->cap_hi));
