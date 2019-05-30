@@ -494,7 +494,6 @@ block_setup(void)
     floppy_setup();
     ata_setup();
     ahci_setup();
-    sdcard_setup();
     ramdisk_setup();
     virtio_blk_setup();
     virtio_scsi_setup();
@@ -504,6 +503,7 @@ block_setup(void)
     pvscsi_setup();
     mpt_scsi_setup();
     nvme_setup();
+    sdcard_setup();
 }
 
 // Fallback handler for command requests not implemented by drivers

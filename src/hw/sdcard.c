@@ -135,7 +135,7 @@ struct sdhci_s {
 #define SDHCI_POWER_ON_TIME    5
 #define SDHCI_CLOCK_ON_TIME    1 // 74 clock cycles
 #define SDHCI_POWERUP_TIMEOUT  1000
-#define SDHCI_PIO_TIMEOUT      1000  // XXX - this is just made up
+#define SDHCI_PIO_TIMEOUT      3000  // XXX - this is just made up
 
 // Internal 'struct drive_s' storage for a detected card
 struct sddrive_s {
@@ -492,10 +492,13 @@ static void
 sdcard_controller_setup(struct sdhci_s *regs, int prio)
 {
     // Initialize controller
-    u32 present_state = readl(&regs->present_state);
-    if (!(present_state & SP_CARD_INSERTED))
+    int state = sdcard_waitw((u16 *)(&regs->present_state) + 1,
+                             SP_CARD_INSERTED >> 16);
+    if (state == -1) {
         // No card present
+        dprintf(3, "%s: No card present!\n", __func__);
         return;
+    }
     dprintf(3, "sdhci@%p ver=%x cap=%x %x\n", regs
             , readw(&regs->controller_version)
             , readl(&regs->cap_lo), readl(&regs->cap_hi));
