@@ -100,7 +100,7 @@ Fourth digit in release number means PC Engines patch.
 - prevented from printing character multiple times
 
 [Unreleased]: https://github.com/pcengines/seabios/compare/rel-1.12.1.2...apu_support
-[rel-1.12.1.1]: https://github.com/pcengines/seabios/compare/rel-1.12.1.1...rel-1.12.1.2
+[rel-1.12.1.2]: https://github.com/pcengines/seabios/compare/rel-1.12.1.1...rel-1.12.1.2
 [rel-1.12.1.1]: https://github.com/pcengines/seabios/compare/rel-1.12.0.1...rel-1.12.1.1
 [rel-1.12.0.1]: https://github.com/pcengines/seabios/compare/rel-1.11.0.7...rel-1.12.0.1
 [rel-1.11.0.7]: https://github.com/pcengines/seabios/compare/rel-1.11.0.6...rel-1.11.0.7
