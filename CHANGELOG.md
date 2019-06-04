@@ -4,6 +4,21 @@ Change log for PC Engines fork of SeaBIOS
 Fourth digit in release number means PC Engines patch.
 
 ## [Unreleased]
+## [rel-1.12.1.2] - 2019-06-04
+### Changed
+- increased maximum timeout values in SD interface to correctly detect and
+  communicate with SD cards in SD 3.0 mode
+
+### Added
+- hard disk fallback boot functionality:
+    - SeaBIOS will now loop through all detected hard disks (SATA, mSATA, USB,
+      SD) according to bootorder and try to boot from it;
+    - SeaBIOS will try next device only if MBR of the current drive    is not
+      valid, i.e. the current device is not bootable
+    - secondary payloads (memtest, sortbootorder) will not be loaded
+      automatically, but only when desired (user has to enter boot menu with
+      F10 key and choose the payload explicitly)
+
 ## [rel-1.12.1.1] - 2019-04-03
 ### Changed
 - rebased on SeaBIOS official repository commit f4c6e4c
@@ -84,7 +99,8 @@ Fourth digit in release number means PC Engines patch.
 ### Fixed
 - prevented from printing character multiple times
 
-[Unreleased]: https://github.com/pcengines/seabios/compare/rel-1.12.1.1...apu_support
+[Unreleased]: https://github.com/pcengines/seabios/compare/rel-1.12.1.2...apu_support
+[rel-1.12.1.1]: https://github.com/pcengines/seabios/compare/rel-1.12.1.1...rel-1.12.1.2
 [rel-1.12.1.1]: https://github.com/pcengines/seabios/compare/rel-1.12.0.1...rel-1.12.1.1
 [rel-1.12.0.1]: https://github.com/pcengines/seabios/compare/rel-1.11.0.7...rel-1.12.0.1
 [rel-1.11.0.7]: https://github.com/pcengines/seabios/compare/rel-1.11.0.6...rel-1.11.0.7
