@@ -607,8 +607,9 @@ static int HaveHDBoot, HaveFDBoot;
 static void
 add_bev(int type, u32 vector)
 {
-    if (type == IPL_TYPE_HARDDISK && HaveHDBoot++)
-        return;
+    if (type == IPL_TYPE_HARDDISK) {
+        HaveHDBoot = 1;
+    }
     if (type == IPL_TYPE_FLOPPY && HaveFDBoot++)
         return;
     if (BEVCount >= ARRAY_SIZE(BEV))
@@ -784,6 +785,8 @@ boot_fail(void)
     reset();
 }
 
+int HDDSequence VARLOW = 0;
+
 // Determine next boot method and attempt a boot using it.
 static void
 do_boot(int seq_nr)
@@ -803,13 +806,15 @@ do_boot(int seq_nr)
         break;
     case IPL_TYPE_HARDDISK:
         printf("Booting from Hard Disk...\n");
-        boot_disk(0x80, 1);
+        boot_disk(0x80 | HDDSequence++, 1);
         break;
     case IPL_TYPE_CDROM:
         boot_cdrom((void*)ie->vector);
         break;
     case IPL_TYPE_CBFS:
-        boot_cbfs((void*)ie->vector);
+        /* boot from CBFS only when hard disk present and as first selection */
+        if (HaveHDBoot && (seq_nr == 0))
+            boot_cbfs((void*)ie->vector);
         break;
     case IPL_TYPE_BEV:
         boot_rom(ie->vector);
@@ -835,6 +840,7 @@ handle_18(void)
     debug_enter(NULL, DEBUG_HDL_18);
     int seq = BootSequence + 1;
     BootSequence = seq;
+    printf("Trying next device: %d\n", BootSequence + 1);
     do_boot(seq);
 }
 
