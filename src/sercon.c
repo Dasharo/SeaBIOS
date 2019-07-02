@@ -43,98 +43,6 @@ static void cursor_pos_set(u8 row, u8 col)
     SET_BDA(cursor_pos[0], pos);
 }
 
-static char **BootOrder VARVERIFY32INIT;
-static int BootOrderCount;
-
-static void
-loadBootOrder(void)
-{
-    if (!CONFIG_BOOTORDER)
-        return;
-
-    char *f = romfile_loadfile("bootorder", NULL);
-    if (!f)
-        return;
-
-    int i = 0;
-    BootOrderCount = 1;
-    while (f[i]) {
-        if (f[i] == '\n')
-            BootOrderCount++;
-        i++;
-    }
-    BootOrder = malloc_tmphigh(BootOrderCount*sizeof(char*));
-    if (!BootOrder) {
-        warn_noalloc();
-        free(f);
-        BootOrderCount = 0;
-        return;
-    }
-
-    dprintf(1, "boot order:\n");
-    i = 0;
-    do {
-        BootOrder[i] = f;
-        f = strchr(f, '\n');
-        if (f)
-            *(f++) = '\0';
-        BootOrder[i] = nullTrailingSpace(BootOrder[i]);
-        dprintf(1, "%d: %s\n", i+1, BootOrder[i]);
-        i++;
-    } while (f);
-}
-
-// See if 'str' starts with 'glob' - if glob contains an '*' character
-// it will match any number of characters in str that aren't a '/' or
-// the next glob character.
-static char *
-find_glob_prefix(const char *glob, const char *str)
-{
-    for (;;) {
-        if (!*glob && (!*str || *str == '/'))
-            return (char*)str;
-        if (*glob == '*') {
-            if (!*str || *str == '/' || *str == glob[1])
-                glob++;
-            else
-                str++;
-            continue;
-        }
-        if (*glob != *str)
-            return NULL;
-        glob++;
-        str++;
-    }
-}
-
-
-static int find_scon(void)
-{
-    int i = 0;
-    for (i=0; i < BootOrderCount; i++)
-    {
-        if (find_glob_prefix("scon0", BootOrder[i]))
-            return 0;
-        if (find_glob_prefix("scon1", BootOrder[i]))
-            return 1;
-    }
-    return -1;
-}
-
-static int find_com2en(void)
-{
-    int i = 0;
-    for (i=0; i < BootOrderCount; i++)
-    {
-        if (find_glob_prefix("com2en0", BootOrder[i]))
-            return 0;
-        if (find_glob_prefix("com2en1", BootOrder[i]))
-            return 1;
-    }
-    return -1;
-}
-
-
 /****************************************************************
  * serial console output
  ****************************************************************/
@@ -616,8 +524,6 @@ void sercon_setup(void)
     addr = romfile_loadint("etc/sercon-port", 0);
     if (!addr)
         return;
-
-    loadBootOrder();
 
     scon = find_scon();
     com2_enabled = find_com2en();

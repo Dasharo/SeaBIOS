@@ -119,7 +119,7 @@ int find_pxen(void)
 
 // search for 'boot from usb' bit value
 // if it doesn't exist - set to enabled
-static int find_usben(void)
+int find_usben(void)
 {
      int i;
      for (i=0; i < BootorderCount; i++)
@@ -128,6 +128,32 @@ static int find_usben(void)
              return 0;
      }
      return 1;
+}
+
+int find_scon(void)
+{
+    int i = 0;
+    for (i=0; i < BootOrderCount; i++)
+    {
+        if (find_glob_prefix("scon0", BootOrder[i]))
+            return 0;
+        if (find_glob_prefix("scon1", BootOrder[i]))
+            return 1;
+    }
+    return -1;
+}
+
+int find_com2en(void)
+{
+    int i = 0;
+    for (i=0; i < BootOrderCount; i++)
+    {
+        if (find_glob_prefix("com2en0", BootOrder[i]))
+            return 0;
+        if (find_glob_prefix("com2en1", BootOrder[i]))
+            return 1;
+    }
+    return -1;
 }
 
 #define FW_PCI_DOMAIN "/pci@i0cf8"
@@ -602,7 +628,8 @@ struct bev_s {
 };
 static struct bev_s BEV[20];
 static int BEVCount;
-static int HaveHDBoot, HaveFDBoot;
+static int HaveHDBoot = 0;
+static int HaveFDBoot;
 
 static void
 add_bev(int type, u32 vector)
@@ -794,7 +821,7 @@ do_boot(int seq_nr)
     if (! CONFIG_BOOT)
         panic("Boot support not compiled in.\n");
 
-    if (seq_nr >= BEVCount)
+    if (seq_nr >= BEVCount || BEVCount < 2)
         boot_fail();
 
     // Boot the given BEV type.
