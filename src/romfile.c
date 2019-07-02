@@ -29,7 +29,7 @@ __romfile_findprefix(const char *prefix, int prefixlen, struct romfile_s *prev)
         cur = prev->next;
     while (cur) {
         if (memcmp(prefix, cur->name, prefixlen) == 0)
-                return cur;
+            return cur;
         cur = cur->next;
     }
     return NULL;
