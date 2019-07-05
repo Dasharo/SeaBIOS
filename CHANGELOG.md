@@ -4,6 +4,20 @@ Change log for PC Engines fork of SeaBIOS
 Fourth digit in release number means PC Engines patch.
 
 ## [Unreleased]
+## [rel-1.12.1.3] - 2019-07-05
+### Fixed
+- some corner cases for boot fallback functionality:
+    - CBFS payloads were still booting when no HD media found (fixed)
+    - CBFS payloads can be loaded only explicitly when entered to boot menu
+      with F10 key
+    - if no HD media present and PXE is disabled, after boot menu wait timeout
+      SeaBIOS will print that no bootable device has been found and will reboot
+      after 60 seconds, unless entered to boot menu to choose a CBFS payload
+
+### Changed
+- removed obsolete and unused code implemented by previous maintainers in older
+  SeaBIOS versions
+
 ## [rel-1.12.1.2] - 2019-06-04
 ### Changed
 - increased maximum timeout values in SD interface to correctly detect and
@@ -99,7 +113,8 @@ Fourth digit in release number means PC Engines patch.
 ### Fixed
 - prevented from printing character multiple times
 
-[Unreleased]: https://github.com/pcengines/seabios/compare/rel-1.12.1.2...apu_support
+[Unreleased]: https://github.com/pcengines/seabios/compare/rel-1.12.1.3...apu_support
+[rel-1.12.1.3]: https://github.com/pcengines/seabios/compare/rel-1.12.1.2...rel-1.12.1.3
 [rel-1.12.1.2]: https://github.com/pcengines/seabios/compare/rel-1.12.1.1...rel-1.12.1.2
 [rel-1.12.1.1]: https://github.com/pcengines/seabios/compare/rel-1.12.0.1...rel-1.12.1.1
 [rel-1.12.0.1]: https://github.com/pcengines/seabios/compare/rel-1.11.0.7...rel-1.12.0.1
