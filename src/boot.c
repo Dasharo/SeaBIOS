@@ -119,7 +119,7 @@ int find_pxen(void)
 
 // search for 'boot from usb' bit value
 // if it doesn't exist - set to enabled
-static int find_usben(void)
+int find_usben(void)
 {
      int i;
      for (i=0; i < BootorderCount; i++)
@@ -128,6 +128,32 @@ static int find_usben(void)
              return 0;
      }
      return 1;
+}
+
+int find_scon(void)
+{
+    int i = 0;
+    for (i=0; i < BootorderCount; i++)
+    {
+        if (glob_prefix("scon0", Bootorder[i]))
+            return 0;
+        if (glob_prefix("scon1", Bootorder[i]))
+            return 1;
+    }
+    return -1;
+}
+
+int find_com2en(void)
+{
+    int i = 0;
+    for (i=0; i < BootorderCount; i++)
+    {
+        if (glob_prefix("com2en0", Bootorder[i]))
+            return 0;
+        if (glob_prefix("com2en1", Bootorder[i]))
+            return 1;
+    }
+    return -1;
 }
 
 #define FW_PCI_DOMAIN "/pci@i0cf8"
@@ -492,6 +518,9 @@ get_keystroke(int msec)
  * Boot menu and BCV execution
  ****************************************************************/
 
+static int pxen;
+static int menu_key_pressed = 0;
+
 #define DEFAULT_BOOTMENU_WAIT 2500
 
 // Show IPL option menu.
@@ -501,7 +530,7 @@ interactive_bootmenu(void)
     // XXX - show available drives?
 
     int n_key = 0;
-    int pxen = find_pxen();
+    pxen = find_pxen();
 
     if (! CONFIG_BOOTMENU || !romfile_loadint("etc/show-boot-menu", 1))
         return;
@@ -547,6 +576,7 @@ interactive_bootmenu(void)
     }
     // Show menu items if menu-key is pressed
     else {
+        menu_key_pressed = 1;
         printf("Select boot device:\n\n");
         wait_threads();
 
@@ -602,14 +632,14 @@ struct bev_s {
 };
 static struct bev_s BEV[20];
 static int BEVCount;
-static int HaveHDBoot, HaveFDBoot;
+static int HaveHDBoot = 0;
+static int HaveFDBoot;
 
 static void
 add_bev(int type, u32 vector)
 {
-    if (type == IPL_TYPE_HARDDISK) {
+    if (type == IPL_TYPE_HARDDISK)
         HaveHDBoot = 1;
-    }
     if (type == IPL_TYPE_FLOPPY && HaveFDBoot++)
         return;
     if (BEVCount >= ARRAY_SIZE(BEV))
@@ -654,10 +684,6 @@ bcv_prepboot(void)
             break;
         }
     }
-
-    // If nothing added a floppy/hd boot - add it manually.
-    add_bev(IPL_TYPE_FLOPPY, 0);
-    add_bev(IPL_TYPE_HARDDISK, 0);
 }
 
 
@@ -794,7 +820,8 @@ do_boot(int seq_nr)
     if (! CONFIG_BOOT)
         panic("Boot support not compiled in.\n");
 
-    if (seq_nr >= BEVCount)
+    if (seq_nr >= BEVCount || (HaveHDBoot == 0 && pxen == 0 &&
+                               menu_key_pressed == 0))
         boot_fail();
 
     // Boot the given BEV type.
@@ -812,8 +839,8 @@ do_boot(int seq_nr)
         boot_cdrom((void*)ie->vector);
         break;
     case IPL_TYPE_CBFS:
-        /* boot from CBFS only when hard disk present and as first selection */
-        if (HaveHDBoot && (seq_nr == 0))
+        /* boot from CBFS only as first selection */
+        if (seq_nr == 0)
             boot_cbfs((void*)ie->vector);
         break;
     case IPL_TYPE_BEV:
