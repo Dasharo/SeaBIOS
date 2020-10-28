@@ -504,9 +504,6 @@ interactive_bootmenu(void)
         printf("%d. %s\n", maxmenu
                , strtcpy(desc, pos->description, ARRAY_SIZE(desc)));
     }
-    if (tpm_can_show_menu()) {
-        printf("\nt. TPM Configuration\n");
-    }
 
     // Get key press.  If the menu key is ESC, do not restart boot unless
     // 1.5 seconds have passed.  Otherwise users (trained by years of
