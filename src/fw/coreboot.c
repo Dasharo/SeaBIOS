@@ -258,7 +258,9 @@ void display_coreboot_version(void)
         return;
 
     if (strlen(CBversion) > 0)
-        printf("coreboot version %s\n", CBversion);
+        printf("Dasharo Firewall %s\n", CBversion);
+    else
+        printf("Dasharo Firewall 1.0.0\n");
 }
 
 /****************************************************************
