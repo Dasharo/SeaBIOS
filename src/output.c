@@ -82,7 +82,7 @@ screenc(char c)
     br.flags = F_IF;
     br.ah = 0x0e;
     br.al = c;
-    br.bl = 0x07;
+    br.bl = 0x0f;
     call16_int(0x10, &br);
 }
 
